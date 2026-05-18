@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Dashboard Principal</title>
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Dashboard General</h1>
+                <div class="user-profile">
+                    <span id="txt-user-role">Rol: Administrador</span>
+                </div>
+            </header>
+
+            <section class="dashboard-grid">
+                <div class="card card-sales">
+                    <h3>Ventas del Día</h3>
+                    <p class="Kpi-value" id="Kpi-ventas">0.00 €</p>
+                </div>
+                <div class="card card-reservations">
+                    <h3>Reservas Hoy</h3>
+                    <p class="Kpi-value" id="Kpi-reservas">0</p>
+                </div>
+                <div class="card card-stock alert">
+                    <h3>Alertas de Stock</h3>
+                    <p class="Kpi-value" id="Kpi-stock">0</p>
+                </div>
+                <div class="card card-staff">
+                    <h3>Personal Activo</h3>
+                    <p class="Kpi-value" id="Kpi-personal">0</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../auth.js"></script>
+    <script src="../main.js"></script>
+    <script src="../modules/dashboard.js"></script>
+</body>
+</html>
