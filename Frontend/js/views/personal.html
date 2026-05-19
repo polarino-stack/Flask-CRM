@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>CRM - Gestión de Reservas</title>
     <link rel="stylesheet" href="../../css/styles.css">
-    <link rel="stylesheet" href="../../css/personal.css"> </head>
+    <link rel="stylesheet" href="../../css/personal.css"> 
+</head>
 <body>
     <div class="app-container">
         <div id="sidebar-container"></div>
@@ -36,10 +37,17 @@
                         <label for="res-hora">Hora</label>
                         <input type="time" id="res-hora" required>
                     </div>
-                    <div class="form-group full-width">
-                        <label for="res-notas">Observaciones (Alergias, trona, etc.)</label>
-                        <input type="text" id="res-notas" placeholder="Ej: Celíaco en la mesa, quieren terraza...">
+                    
+                    <div class="form-group">
+                        <label for="res-mesa">Mesa / Zona</label>
+                        <input type="text" id="res-mesa" placeholder="Ej: M5 o Terraza" required>
                     </div>
+
+                    <div class="form-group span-2">
+                        <label for="res-notas">Observaciones (Alergias, trona, etc.)</label>
+                        <input type="text" id="res-notas" placeholder="Ej: Celíaco en la mesa...">
+                    </div>
+                    
                     <div class="form-group btn-group">
                         <button type="submit" class="btn-primary">Guardar Reserva</button>
                     </div>
@@ -59,7 +67,7 @@
                                 <th>Hora</th>
                                 <th>Nombre</th>
                                 <th>Pax</th>
-                                <th>Teléfono</th>
+                                <th>Mesa</th> <th>Teléfono</th>
                                 <th>Notas</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
@@ -70,7 +78,7 @@
                                 <td><strong>13:30</strong></td>
                                 <td>Mesa Marta</td>
                                 <td>2</td>
-                                <td>612345678</td>
+                                <td><strong>Interior - 3</strong></td> <td>612345678</td>
                                 <td>Ninguna</td>
                                 <td><span class="badge active">Confirmada</span></td>
                                 <td class="action-cells">
@@ -82,7 +90,7 @@
                                 <td><strong>14:15</strong></td>
                                 <td>Familia López</td>
                                 <td>5</td>
-                                <td>698765432</td>
+                                <td><strong>Terraza - 12</strong></td> <td>698765432</td>
                                 <td>⚠️ Trona, 1 Intolerante a lactosa</td>
                                 <td><span class="badge inactive">Pendiente</span></td>
                                 <td class="action-cells">
