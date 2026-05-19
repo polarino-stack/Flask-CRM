@@ -1,14 +1,39 @@
 <div class="sidebar">
-    <div class="logo">
+    <div class="sidebar-header">
+        <div class="logo-circle"></div>
         <h2>RestauranteCRM</h2>
     </div>
-    <nav class="menu">
-        <a href="dashboard.html" id="link-dashboard"><i class="icon-dashboard"></i> Inicio</a>
-        <a href="productos.html" id="link-productos"><i class="icon-products"></i> Productos</a>
-        <a href="reservas.html" id="link-reservas"><i class="icon-tables"></i> Mesas y Reservas</a>
-        <a href="personal.html" id="link-personal"><i class="icon-staff"></i> Personal</a>
+
+    <nav class="sidebar-nav">
+        <p class="nav-label">Menú Principal</p>
+        <a href="dashboard.html" id="link-dashboard" class="nav-item">
+            <span class="nav-icon icon-dash"></span> Dashboard
+        </a>
+        <a href="productos.html" id="link-productos" class="nav-item">
+            <span class="nav-icon icon-prod"></span> Productos
+        </a>
+        <a href="reservas.html" id="link-reservas" class="nav-item">
+            <span class="nav-icon icon-res"></span> Reservas
+        </a>
+        <a href="mesas.html" id="link-mesas" class="nav-item">
+            <span class="nav-icon icon-mes"></span> Mesas
+        </a>
+        <a href="personal.html" id="link-personal" class="nav-item">
+            <span class="nav-icon icon-staff"></span> Personal
+        </a>
+
+        <p class="nav-label">Administración</p>
+        <a href="reportes.html" id="link-reportes" class="nav-item">
+            <span class="nav-icon icon-rep"></span> Reportes
+        </a>
+        <a href="config.html" id="link-config" class="nav-item">
+            <span class="nav-icon icon-cfg"></span> Configuración
+        </a>
     </nav>
+
     <div class="sidebar-footer">
-        <button id="btn-logout">Cerrar Sesión</button>
+        <button id="btn-logout" class="btn-logout">
+            <span class="icon-exit"></span> Cerrar Sesión
+        </button>
     </div>
 </div>

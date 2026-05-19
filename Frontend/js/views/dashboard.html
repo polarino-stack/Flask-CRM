@@ -3,40 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM - Dashboard Principal</title>
+    <title>RestauranteCRM - Panel Principal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../css/styles.css">
     <link rel="stylesheet" href="../../css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
     <div class="app-container">
         <div id="sidebar-container"></div>
 
         <main class="main-content">
             <header class="top-bar">
-                <h1>Dashboard General</h1>
-                <div class="user-profile">
-                    <span id="txt-user-role">Rol: Administrador</span>
+                <div class="top-bar-left">
+                    <h2 id="restaurant-name">La Trattoria Premium</h2>
+                    <div class="search-box">
+                        <span class="search-icon"></span>
+                        <input type="text" placeholder="Buscar reservas, productos...">
+                    </div>
+                </div>
+                
+                <div class="top-bar-right">
+                    <div class="notifications">
+                        <span class="noti-badge">3</span>
+                        <div class="icon-bell"></div>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <span class="user-name">Julio Administrador</span>
+                            <span id="txt-user-role">Admin</span>
+                        </div>
+                        <div class="user-avatar">JA</div>
+                    </div>
                 </div>
             </header>
 
-            <section class="dashboard-grid">
-                <div class="card card-sales">
-                    <h3>Ventas del Día</h3>
-                    <p class="Kpi-value" id="Kpi-ventas">0.00 €</p>
+            <div class="dashboard-body">
+                <div class="welcome-header">
+                    <h1>Resumen General</h1>
+                    <p>Esto es lo que está pasando hoy en tu restaurante.</p>
                 </div>
-                <div class="card card-reservations">
-                    <h3>Reservas Hoy</h3>
-                    <p class="Kpi-value" id="Kpi-reservas">0</p>
-                </div>
-                <div class="card card-stock alert">
-                    <h3>Alertas de Stock</h3>
-                    <p class="Kpi-value" id="Kpi-stock">0</p>
-                </div>
-                <div class="card card-staff">
-                    <h3>Personal Activo</h3>
-                    <p class="Kpi-value" id="Kpi-personal">0</p>
-                </div>
-            </section>
+
+                <section class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-sales"></div>
+                        <div class="kpi-data">
+                            <h3>Ventas del Día</h3>
+                            <p class="value" id="kpi-ventas">1,240.50 €</p>
+                            <span class="trend pos">+12% vs ayer</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-stock"></div>
+                        <div class="kpi-data">
+                            <h3>Stock Total</h3>
+                            <p class="value" id="kpi-stock-total">842 uds</p>
+                            <span class="trend neg">12 Alertas</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-reservas"></div>
+                        <div class="kpi-data">
+                            <h3>Reservas Hoy</h3>
+                            <p class="value" id="kpi-reservas">28</p>
+                            <span class="trend pos">85% Ocupación</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-staff"></div>
+                        <div class="kpi-data">
+                            <h3>Personal Activo</h3>
+                            <p class="value" id="kpi-staff">14</p>
+                            <span class="trend">En turno</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="charts-grid">
+                    <div class="chart-container large">
+                        <div class="chart-header">
+                            <h3>Ventas de la Semana</h3>
+                            <select id="sales-period">
+                                <option>Últimos 7 días</option>
+                                <option>Mensual</option>
+                            </select>
+                        </div>
+                        <canvas id="salesChart"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Estado de Reservas</h3>
+                        </div>
+                        <canvas id="reservasChart"></canvas>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3>Categorías más vendidas</h3>
+                        </div>
+                        <canvas id="stockChart"></canvas>
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
 
