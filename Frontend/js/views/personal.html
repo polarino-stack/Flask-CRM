@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CRM - Gestión de Reservas</title>
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="stylesheet" href="../../css/personal.css"> </head>
+<body>
+    <div class="app-container">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1>Reservas Telefónicas</h1>
+                <div class="user-profile">
+                    <span id="txt-user-role">Rol: Administrador</span>
+                </div>
+            </header>
+
+            <section class="personal-section form-section">
+                <h2>☎️ Tomar Nueva Reserva</h2>
+                <form id="form-reserva" class="quick-form">
+                    <div class="form-group">
+                        <label for="res-nombre">Nombre del cliente</label>
+                        <input type="text" id="res-nombre" placeholder="Ej: Familia García" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="res-telefono">Teléfono</label>
+                        <input type="tel" id="res-telefono" placeholder="Ej: 600123456" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="res-pax">Personas (Pax)</label>
+                        <input type="number" id="res-pax" min="1" max="20" placeholder="Ej: 4" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="res-hora">Hora</label>
+                        <input type="time" id="res-hora" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="res-notas">Observaciones (Alergias, trona, etc.)</label>
+                        <input type="text" id="res-notas" placeholder="Ej: Celíaco en la mesa, quieren terraza...">
+                    </div>
+                    <div class="form-group btn-group">
+                        <button type="submit" class="btn-primary">Guardar Reserva</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="personal-section">
+                <div class="toolbar">
+                    <h3>Reservas para Hoy</h3>
+                    <input type="date" class="search-input" title="Seleccionar fecha">
+                </div>
+
+                <div class="table-container">
+                    <table class="crm-table">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Nombre</th>
+                                <th>Pax</th>
+                                <th>Teléfono</th>
+                                <th>Notas</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reservas-table-body">
+                            <tr>
+                                <td><strong>13:30</strong></td>
+                                <td>Mesa Marta</td>
+                                <td>2</td>
+                                <td>612345678</td>
+                                <td>Ninguna</td>
+                                <td><span class="badge active">Confirmada</span></td>
+                                <td class="action-cells">
+                                    <button class="btn-icon" title="Marcar como sentados">✔️</button>
+                                    <button class="btn-icon delete" title="Cancelar">❌</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>14:15</strong></td>
+                                <td>Familia López</td>
+                                <td>5</td>
+                                <td>698765432</td>
+                                <td>⚠️ Trona, 1 Intolerante a lactosa</td>
+                                <td><span class="badge inactive">Pendiente</span></td>
+                                <td class="action-cells">
+                                    <button class="btn-icon" title="Marcar como sentados">✔️</button>
+                                    <button class="btn-icon delete" title="Cancelar">❌</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
