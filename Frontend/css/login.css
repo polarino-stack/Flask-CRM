@@ -1,0 +1,385 @@
+/* ==========================================================================
+   VARIABLES DE DISEÑO Y CONFIGURACIÓN GENERAL
+   ========================================================================== */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --accent-color: #10b981;
+    /* Verde esmeralda gastronómico/SaaS */
+    --accent-hover: #059669;
+    --input-bg: #ffffff;
+    --input-border: #e2e8f0;
+    --input-focus: #10b981;
+    --radius-lg: 12px;
+    --radius-md: 8px;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-secondary);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+}
+
+/* ==========================================================================
+   ESTRUCTURA DE DOBLE PANEL (RESPONSIVE)
+   ========================================================================== */
+
+.login-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bg-primary);
+}
+
+/* Panel Izquierdo: Formulario */
+.login-form-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    background-color: var(--bg-primary);
+    z-index: 2;
+}
+
+/* Panel Derecho: Imagen Gastronómica */
+.login-image-side {
+    flex: 1.2;
+    position: relative;
+    background-image: url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop');
+    /* Imagen premium de cocina en alta calidad */
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: flex-end;
+    padding: 60px;
+    overflow: hidden;
+
+    /* MÁSCARA DE TRANSPARENCIA PROGRESIVA (Borra la línea de separación) */
+    mask-image: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 15%);
+    -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 15%);
+}
+
+/* Capa oscura superior sobre la imagen para ganar contraste */
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.75) 100%);
+    z-index: 1;
+}
+
+/* ==========================================================================
+   COMPONENTES DEL FORMULARIO
+   ========================================================================== */
+.login-box {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Encabezado */
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.logo-dot {
+    width: 12px;
+    height: 12px;
+    background-color: var(--accent-color);
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.brand-logo h2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.login-header p {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* inputs e Iconos */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 14px 16px 14px 44px;
+    /* Espacio izquierdo reservado para el icono */
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-main);
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-md);
+    outline: none;
+    transition: var(--transition-smooth);
+}
+
+/* Animación focus elegante */
+.input-wrapper input:focus {
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+}
+
+/* Iconos integrados mediante SVG en Background enmascarado */
+.input-icon {
+    position: absolute;
+    left: 16px;
+    width: 18px;
+    height: 18px;
+    background-color: var(--text-muted);
+    transition: var(--transition-smooth);
+}
+
+.input-wrapper input:focus+.input-icon {
+    background-color: var(--accent-color);
+}
+
+.icon-user {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'/%3E%3C/svg%3E") center/contain no-repeat;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+.icon-lock {
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'/%3E%3C/svg%3E") center/contain no-repeat;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+/* Acciones extras (Recordar/Olvidar) */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    margin-bottom: 24px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.remember-me input [type="checkbox"] {
+    accent-color: var(--accent-color);
+}
+
+.forgot-password {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+}
+
+.forgot-password:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+/* Botón de envío Premium */
+.btn-login {
+    width: 100%;
+    padding: 14px;
+    background-color: var(--text-main);
+    /* Botón oscuro elegante */
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.btn-login:hover {
+    background-color: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.2);
+}
+
+.btn-login:active {
+    transform: translateY(0);
+}
+
+/* Mensaje de Error Maquetado profesionalmente */
+.error-msg {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #fef2f2;
+    border: 1px solid #fca5a5;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    color: #991b1b;
+    font-size: 13px;
+    font-weight: 500;
+    animation: shake 0.4s ease-in-out;
+}
+
+.error-icon {
+    background-color: #ef4444;
+    color: white;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Copy del pie de página */
+.login-footer {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.login-footer p {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   DISEÑO TARJETA GLASSMORPHISM (PANEL DERECHO)
+   ========================================================================== */
+
+.glass-card {
+    position: relative;
+    z-index: 3;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    color: #ffffff;
+    max-width: 540px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+
+    margin-left: auto;
+    margin-bottom: 15px;
+}
+
+.glass-card h3 {
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+.glass-card p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.glass-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* ==========================================================================
+   ANIMACIONES Y RESPONSIVE
+   ========================================================================== */
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-4px);
+    }
+
+    75% {
+        transform: translateX(4px);
+    }
+}
+
+/* Responsive para Tablets */
+@media (max-width: 1024px) {
+    .glass-card h3 {
+        font-size: 20px;
+    }
+
+    .login-image-side {
+        padding: 40px;
+        flex: 1;
+    }
+}
+
+/* Responsive Completo para Móviles */
+@media (max-width: 768px) {
+    .login-image-side {
+        display: none;
+        /* Oculta completamente el panel visual en móviles */
+    }
+
+    .login-form-side {
+        padding: 24px;
+    }
+
+    .login-box {
+        max-width: 100%;
+    }
+}
