@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestauranteCRM - Inventario e Stock</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2=family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link rel="stylesheet" href="../../css/productos.css">
+</head>
+<body>
+    <div class="app-container">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <h2>Módulo de Inventario</h2>
+                    <div class="search-box">
+                        <span class="search-icon"></span>
+                        <input type="text" id="product-search" placeholder="Buscar por producto o categoría...">
+                    </div>
+                </div>
+                <div class="top-bar-right">
+                    <div class="user-profile">
+                        <span class="user-name">Julio Admin</span>
+                        <div class="user-avatar">JA</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-body">
+                <div class="welcome-header inventory-header">
+                    <div>
+                        <h1>Control de Stock</h1>
+                        <p>Visualiza, edita existencias y simula ventas directas.</p>
+                    </div>
+                    <button class="btn-login btn-add-product" id="btn-open-modal">+ Agregar Producto</button>
+                </div>
+
+                <section class="kpi-grid inventory-kpi-margin">
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-stock"></div>
+                        <div class="kpi-data">
+                            <h3>Total Unidades</h3>
+                            <p class="value" id="stat-total-stock">0</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon kpi-icon-warning">
+                            <span class="nav-icon icon-prod badge-icon-warning"></span>
+                        </div>
+                        <div class="kpi-data">
+                            <h3>Poco Stock</h3>
+                            <p class="value text-warning-kpi" id="stat-low-stock">0</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon kpi-icon-danger">
+                            <span class="nav-icon icon-exit badge-icon-danger"></span>
+                        </div>
+                        <div class="kpi-data">
+                            <h3>Productos Agotados</h3>
+                            <p class="value text-danger-kpi" id="stat-out-stock">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="chart-container large inventory-container">
+                    <div class="chart-header inventory-chart-header">
+                        <h3 class="title-bold">Catálogo de Existencias</h3>
+                        <select id="category-filter">
+                            <option value="TODOS">Todas las Categorías</option>
+                            <option value="BEBIDAS">Bebidas</option>
+                            <option value="BEBIDAS ALCOHÓLICAS">Bebidas Alcohólicas</option>
+                            <option value="EMBUTIDOS">Embutidos</option>
+                            <option value="CONDIMENTOS">Condimentos</option>
+                            <option value="FRUTAS Y VEGETALES">Frutas y Vegetales</option>
+                        </select>
+                    </div>
+
+                    <div class="table-responsive-wrapper">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Precio Compra</th>
+                                    <th>Stock Actual</th>
+                                    <th>Estado</th>
+                                    <th>Acciones / Venta</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="product-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 id="modal-title">Agregar Nuevo Producto</h2>
+                <button id="btn-close-modal" class="modal-close-btn">&times;</button>
+            </div>
+            <form id="form-product">
+                <input type="hidden" id="product-id">
+                <div class="input-group">
+                    <label for="prod-name">Nombre del Producto</label>
+                    <div class="input-wrapper input-modal-wrapper">
+                        <input type="text" id="prod-name" placeholder="Ej: Coca Cola" required class="input-modal-padding">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="prod-category">Categoría</label>
+                    <select id="prod-category" required class="select-modal-custom">
+                        <option value="BEBIDAS">Bebidas</option>
+                        <option value="BEBIDAS ALCOHÓLICAS">Bebidas Alcohólicas</option>
+                        <option value="EMBUTIDOS">Embutidos</option>
+                        <option value="CONDIMENTOS">Condimentos</option>
+                        <option value="FRUTAS Y VEGETALES">Frutas y Vegetales</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="prod-price">Precio Compra por Unidad (€)</label>
+                    <div class="input-wrapper input-modal-wrapper">
+                        <input type="number" id="prod-price" step="0.01" min="0" placeholder="0.00" required class="input-modal-padding">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="prod-stock">Cantidad de Stock Inicial</label>
+                    <div class="input-wrapper input-modal-wrapper">
+                        <input type="number" id="prod-stock" min="0" placeholder="0" required class="input-modal-padding">
+                    </div>
+                </div>
+                <button type="submit" class="btn-login" style="margin-top: 12px;">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="../auth.js"></script>
+    <script src="../main.js"></script>
+    <script src="../modules/productos.js"></script>
+</body>
+</html>

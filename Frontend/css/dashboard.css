@@ -28,9 +28,6 @@ body {
     min-height: 100vh;
 }
 
-/* ==========================================================================
-   ESTILOS COMPLETOS PARA EL SIDEBAR (MENU LATERAL)
-   ========================================================================== */
 .sidebar {
     width: 260px;
     height: 100vh;
@@ -45,7 +42,6 @@ body {
     border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Cabecera del Sidebar */
 .sidebar-header {
     height: 70px;
     display: flex;
@@ -69,7 +65,6 @@ body {
     letter-spacing: -0.5px;
 }
 
-/* Cuerpo de navegación */
 .sidebar-nav {
     flex: 1;
     padding: 24px 16px;
@@ -79,7 +74,6 @@ body {
     overflow-y: auto;
 }
 
-/* Etiquetas de sección (Menú Principal / Administración) */
 .nav-label {
     font-size: 11px;
     font-weight: 700;
@@ -89,14 +83,12 @@ body {
     padding: 12px 12px 6px 12px;
 }
 
-/* Elementos de menú individuales */
 .nav-item {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 12px;
     color: #94a3b8;
-    /* Gris suave para elementos inactivos */
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
@@ -105,25 +97,21 @@ body {
     cursor: pointer;
 }
 
-/* Efectos Hover */
 .nav-item:hover {
     background-color: rgba(255, 255, 255, 0.04);
     color: #ffffff;
 }
 
-/* Clase Activa (La que inyecta tu main.js automáticamente) */
 .nav-item.active {
     background-color: var(--accent-light);
     color: var(--accent);
     font-weight: 600;
 }
 
-/* Contenedor del Icono */
 .nav-icon {
     width: 18px;
     height: 18px;
     background-color: #64748b;
-    /* Color por defecto */
     transition: all 0.2s ease;
 }
 
@@ -135,9 +123,6 @@ body {
     background-color: var(--accent);
 }
 
-/* ==========================================================================
-   INYECCIÓN DE ICONOS VECTORIALES (MÁSCARAS)
-   ========================================================================== */
 .icon-dash {
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zm10 0a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z'/%3E%3C/svg%3E") center/contain no-repeat;
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zm10 0a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z'/%3E%3C/svg%3E") center/contain no-repeat;
@@ -173,7 +158,6 @@ body {
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 
-/* Sección de botón Logout al pie */
 .sidebar-footer {
     padding: 16px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -188,7 +172,6 @@ body {
     gap: 12px;
     padding: 12px;
     color: #ef4444;
-    /* Rojo de alerta elegante */
     font-family: inherit;
     font-size: 14px;
     font-weight: 500;
@@ -205,7 +188,6 @@ body {
     background-color: #ef4444;
 }
 
-/* MAIN CONTENT */
 .main-content {
     flex: 1;
     display: flex;
@@ -213,7 +195,6 @@ body {
     overflow-x: hidden;
 }
 
-/* TOPBAR */
 .top-bar {
     height: 70px;
     background: white;
@@ -297,7 +278,6 @@ body {
     font-size: 14px;
 }
 
-/* DASHBOARD BODY */
 .dashboard-body {
     padding: 32px;
 }
@@ -316,7 +296,6 @@ body {
     margin-top: 4px;
 }
 
-/* KPI GRID */
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -349,7 +328,6 @@ body {
     justify-content: center;
 }
 
-/* Iconos usando máscaras como en el login */
 .kpi-icon::before {
     content: '';
     width: 24px;
@@ -404,7 +382,6 @@ body {
     color: #ef4444;
 }
 
-/* CHARTS GRID */
 .charts-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -429,7 +406,6 @@ body {
 .chart-container canvas {
     width: 100% !important;
     height: calc(100% - 40px) !important;
-    /* Restamos el espacio del título */
 }
 
 .chart-header {
@@ -444,7 +420,7 @@ body {
     font-weight: 700;
 }
 
-.chart-header select {
+.chart-header select#sales-period {
     border: 1px solid var(--border);
     padding: 4px 8px;
     border-radius: 6px;
@@ -452,7 +428,6 @@ body {
     font-size: 12px;
 }
 
-/* RESPONSIVE */
 @media (max-width: 1024px) {
     .charts-grid {
         grid-template-columns: 1fr;
@@ -468,7 +443,6 @@ body {
         display: none;
     }
 
-    /* En móvil el sidebar debería ser un menú hamburguesa */
     .top-bar {
         padding: 0 16px;
     }

@@ -1,0 +1,422 @@
+/* ==========================================================================
+   MÓDULO DE RESERVAS: MAQUETACIÓN E INTERFAZ PREMUM
+   ========================================================================== */
+/* Colores de variables específicas de Reservas */
+.text-pending {
+    color: #f59e0b !important;
+}
+
+.text-confirmed {
+    color: #10b981 !important;
+}
+
+.text-tables {
+    color: #3b82f6 !important;
+}
+
+.bookings-header {
+    margin-bottom: 24px;
+}
+
+.bookings-kpi-grid {
+    margin-bottom: 24px;
+}
+
+/* Distribución del Panel en Dos Columnas (Formulario + Mapa) */
+.bookings-layout-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.quick-booking-box,
+.map-booking-box,
+.bookings-table-container {
+    height: auto;
+    padding: 24px;
+    background: #ffffff;
+}
+
+/* Estilos de Formularios Premium */
+.premium-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+}
+
+.premium-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.premium-form .form-grid-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.premium-form label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.premium-form input,
+.premium-form select {
+    width: 100%;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #1e293b;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.premium-form input:focus,
+.premium-form select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+}
+
+.btn-submit-booking {
+    width: 100%;
+    padding: 14px;
+    background-color: #1e293b;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    margin-top: 8px;
+}
+
+.btn-submit-booking:hover {
+    background-color: #334155;
+    transform: translateY(-1px);
+}
+
+.btn-cancel-edit {
+    width: 100%;
+    padding: 10px;
+    background-color: #f1f5f9;
+    color: #475569;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel-edit:hover {
+    background-color: #e2e8f0;
+}
+
+/* MAPA VISUAL DE MESAS */
+.map-legends {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #64748b;
+    align-items: center;
+}
+
+.legend-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-left: 4px;
+}
+
+.legend-dot.free {
+    background-color: #e2e8f0;
+    border: 1px solid #cbd5e1;
+}
+
+.legend-dot.reserved {
+    background-color: rgba(245, 158, 11, 0.15);
+    border: 2px solid #f59e0b;
+}
+
+.legend-dot.seated {
+    background-color: rgba(59, 130, 246, 0.15);
+    border: 2px solid #3b82f6;
+}
+
+.zone-title {
+    font-size: 13px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    text-align: left;
+    border-left: 3px solid #10b981;
+    padding-left: 8px;
+}
+
+.grid-tables-map {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+}
+
+/* Fichas de mesa interactivas */
+.table-node {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.table-node .table-id {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1e293b;
+}
+
+.table-node .table-cap {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* Estados por colores solicitados */
+.table-node.state-free {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+}
+
+.table-node.state-free:hover {
+    border-color: #cbd5e1;
+    background-color: #f8fafc;
+}
+
+.table-node.state-reserved {
+    background-color: rgba(245, 158, 11, 0.05);
+    border-color: #f59e0b;
+}
+
+.table-node.state-reserved .table-id {
+    color: #d97706;
+}
+
+.table-node.state-seated {
+    background-color: rgba(59, 130, 246, 0.05);
+    border-color: #3b82f6;
+}
+
+.table-node.state-seated .table-id {
+    color: #2563eb;
+}
+
+/* BADGES MODERNOS DE ESTADOS */
+.badge.status-pendiente {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.badge.status-confirmada {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.badge.status-sentado {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.badge.status-finalizada {
+    background-color: rgba(100, 116, 139, 0.1);
+    color: #64748b;
+}
+
+.badge.status-cancelada {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.bookings-chart-header {
+    margin-bottom: 20px;
+}
+
+/* ==========================================================================
+   ESTILOS PREMIUM PARA LOS FILTROS (FECHA Y SELECT)
+   ========================================================================== */
+.filters-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filters-group .select-filter {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+
+    height: 42px;
+    padding: 10px 40px 10px 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1e293b;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+    display: inline-flex;
+    align-items: center;
+}
+
+select.select-filter {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 14px) center;
+    background-size: 14px;
+}
+
+.filters-group .select-filter:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+}
+
+.filters-group .select-filter option {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #ffffff;
+    color: #1e293b;
+    padding: 10px;
+}
+
+/* ==========================================================================
+   ESTILOS PARA EL LIBRO DE REGISTRO GENERAL (TABLA Y FILTROS)
+   ========================================================================== */
+.bookings-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.table-responsive-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.architecture-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 14px;
+    background-color: #ffffff;
+}
+
+.architecture-table th {
+    background-color: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.architecture-table td {
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #1e293b;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.architecture-table tr:hover td {
+    background-color: #f8fafc;
+}
+
+.row-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-start;
+}
+
+.action-btn-pill {
+    border: none;
+    background-color: #f1f5f9;
+    color: #334155;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.action-btn-pill:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.action-btn-pill.btn-attendance {
+    background-color: rgba(59, 130, 246, 0.06);
+    color: #3b82f6;
+}
+
+.action-btn-pill.btn-attendance:hover {
+    background-color: rgba(59, 130, 246, 0.15);
+}
+
+.action-btn-pill.btn-edit {
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+.action-btn-pill.btn-delete {
+    background-color: rgba(239, 68, 68, 0.05);
+    color: #ef4444;
+    padding: 6px 10px;
+}
+
+.action-btn-pill.btn-delete:hover {
+    background-color: rgba(239, 68, 68, 0.15);
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 1024px) {
+    .bookings-layout-grid {
+        grid-template-columns: 1fr;
+    }
+}
