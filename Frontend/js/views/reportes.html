@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestauranteCRM - Informes y Analítica Avanzada</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link rel="stylesheet" href="../../css/reportes.css">
+</head>
+<body>
+    <div class="app-container">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <h2>Módulo de Analítica</h2>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="report-search" placeholder="Filtrar informes, productos o tablas...">
+                    </div>
+                </div>
+                <div class="top-bar-right">
+                    <div class="user-profile">
+                        <span class="user-name">Julio Admin</span>
+                        <span class="user-role-badge">Administrador</span>
+                        <div class="user-avatar">JA</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-body">
+                <div class="welcome-header reports-header">
+                    <div>
+                        <h1>Informes de Rendimiento</h1>
+                        <p>Analiza el comportamiento histórico de las existencias, la ocupación de la sala y los turnos de asistencia.</p>
+                    </div>
+                    <div class="export-actions">
+                        <button class="btn-export pdf" onclick="exportarReporte('PDF')">📄 Exportar PDF</button>
+                        <button class="btn-export excel" onclick="exportarReporte('Excel')">📊 Exportar Excel</button>
+                        <button class="btn-export print" onclick="window.print()">🖨️ Imprimir</button>
+                    </div>
+                </div>
+
+                <div class="chart-container filter-bar-reports">
+                    <div class="filters-group">
+                        <select id="filter-period" class="select-filter">
+                            <option value="HOY">Filtro: Hoy</option>
+                            <option value="SEMANAL">Filtro: Vista Semanal</option>
+                            <option value="MENSUAL">Filtro: Vista Mensual</option>
+                        </select>
+                        <select id="filter-category-rep" class="select-filter">
+                            <option value="TODOS">Todas las Categorías</option>
+                            <option value="BEBIDAS">Bebidas</option>
+                            <option value="BEBIDAS ALCOHÓLICAS">Bebidas Alcohólicas</option>
+                            <option value="EMBUTIDOS">Embutidos</option>
+                            <option value="CONDIMENTOS">Condimentos</option>
+                            <option value="FRUTAS Y VEGETALES">Frutas y Vegetales</option>
+                        </select>
+                        <input type="date" id="filter-date-rep" class="select-filter" title="Fecha específica">
+                    </div>
+                </div>
+
+                <section class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-analytics-1">🔥</div>
+                        <div class="kpi-data">
+                            <h3>Mesa más Rentable</h3>
+                            <p class="value" id="kpi-top-table">-</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-analytics-2">🕒</div>
+                        <div class="kpi-data">
+                            <h3>Hora Pico Comensales</h3>
+                            <p class="value" id="kpi-peak-hour">-</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-analytics-3">📦</div>
+                        <div class="kpi-data">
+                            <h3>Valor del Inventario</h3>
+                            <p class="value" id="kpi-stock-value">0.00 €</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-analytics-4">⏱️</div>
+                        <div class="kpi-data">
+                            <h3>Productividad Turnos</h3>
+                            <p class="value" id="kpi-staff-hours">0 hrs</p>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="reports-tables-layout">
+                    <div class="tables-main-stack">
+                        <div class="chart-container table-report-box">
+                            <div class="chart-header">
+                                <h3 class="title-bold">Inventario Crítico (Agotados y Bajo Stock)</h3>
+                            </div>
+                            <div class="table-responsive-wrapper">
+                                <table class="architecture-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Categoría</th>
+                                            <th>Existencias</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rep-table-inventario"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="chart-container table-report-box">
+                            <div class="chart-header">
+                                <h3 class="title-bold">Control de Jornada Laboral (Hoy)</h3>
+                            </div>
+                            <div class="table-responsive-wrapper">
+                                <table class="architecture-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Empleado</th>
+                                            <th>Entrada</th>
+                                            <th>Salida</th>
+                                            <th>Estado Actual</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rep-table-personal"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-side-stack">
+                        <div class="chart-container timeline-container-box">
+                            <div class="chart-header">
+                                <h3 class="title-bold">Auditoría de Actividad Reciente</h3>
+                            </div>
+                            <div class="timeline-wrapper" id="sys-timeline"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="../auth.js"></script>
+    <script src="../main.js"></script>
+    <script src="../modules/reportes.js"></script>
+</body>
+</html>
