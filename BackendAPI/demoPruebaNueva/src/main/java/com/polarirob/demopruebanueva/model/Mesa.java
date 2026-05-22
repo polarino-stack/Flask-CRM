@@ -9,9 +9,10 @@ public class Mesa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "numero_mesa", unique = true, nullable = false)
     private Integer numeroMesa;   // identificador visible
 
+    @Column(nullable = false)
     private Integer capacidad;
 
     public Mesa() {}
