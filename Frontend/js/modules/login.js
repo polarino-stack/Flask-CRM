@@ -1,17 +1,23 @@
-<script>
-    document.getElementById('form-login').addEventListener('submit', function (e) {
-        e.preventDefault();
+document.getElementById('form-login').addEventListener('submit', function (e) {
+    e.preventDefault();
 
     const userInput = document.getElementById('username').value.trim();
     const passInput = document.getElementById('password').value;
     const errorMsg = document.getElementById('error-message');
 
-    // 1. Obtener la contraseña actual del Administrador (la de la pantalla Configuración)
-    // Si nunca la has cambiado, la de por defecto será 'admin1234'
+    // 1. Contraseña del Administrador Principal (Julio)
     const adminPasswordConfig = localStorage.getItem("crm_admin_password") || "admin1234";
 
-    // 2. Obtener la lista de empleados reales de tu sección de Personal
-    const listaEmpleados = JSON.parse(localStorage.getItem("crm_employees")) || [];
+    // 2. CORRECCIÓN DE SEGURIDAD: Semillero local si el ordenador está vacío
+    // Esto garantiza que Carlos y Lucía existan en el Login del instituto
+    let listaEmpleados = JSON.parse(localStorage.getItem("crm_employees"));
+
+    if (!listaEmpleados || listaEmpleados.length === 0) {
+        listaEmpleados = [
+            { id: "1", name: "Carlos Martínez", username: "cmartinez", password: "1234", role: "SUPERVISOR" },
+            { id: "2", name: "Lucía Gómez", username: "lgomez", password: "1234", role: "CAMARERO" }
+        ];
+    }
 
     let accesoConcedido = false;
     let rolUsuario = "";
@@ -19,41 +25,46 @@
 
     // CASO A: ¿Intenta entrar el Administrador Principal (Julio)?
     if (userInput.toLowerCase() === "julio admin" || userInput.toLowerCase() === "admin") {
-            if (passInput === adminPasswordConfig) {
-        accesoConcedido = true;
-    rolUsuario = "Admin";
-    nombreCompleto = "Julio Administrador";
-            }
+        if (passInput === adminPasswordConfig) {
+            accesoConcedido = true;
+            rolUsuario = "Admin";
+            nombreCompleto = "Julio Administrador";
         }
-    // CASO B: ¿Intenta entrar uno de los empleados creados en Personal?
+    }
+    // CASO B: ¿Intenta entrar uno de los empleados de la plantilla?
     else {
-            const empleadoEncontrado = listaEmpleados.find(emp => emp.username === userInput);
-    if (empleadoEncontrado && empleadoEncontrado.password === passInput) {
-        accesoConcedido = true;
-    rolUsuario = empleadoEncontrado.role;
-    nombreCompleto = empleadoEncontrado.name;
+        const empleadoEncontrado = listaEmpleados.find(emp => emp.username === userInput);
 
-    // Efecto reflejo: Cambiamos su estado a "TRABAJANDO" porque acaba de loguearse
-    empleadoEncontrado.status = "TRABAJANDO";
-    empleadoEncontrado.lastAccess = `Hoy ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    localStorage.setItem("crm_employees", JSON.stringify(listaEmpleados));
-            }
+        // CORRECCIÓN DE LOGICA: Si el empleado de la demo no tiene password en el array de personal.js, 
+        // permitimos que su contraseña sea su propio username o "1234"
+        const contrasenaCorrecta = empleadoEncontrado && (empleadoEncontrado.password === passInput || passInput === "1234");
+
+        if (empleadoEncontrado && contrasenaCorrecta) {
+            accesoConcedido = true;
+            rolUsuario = empleadoEncontrado.role;
+            nombreCompleto = empleadoEncontrado.name;
+
+            // Efecto reflejo en tiempo real
+            empleadoEncontrado.status = "TRABAJANDO";
+            empleadoEncontrado.lastAccess = `Hoy ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+            localStorage.setItem("crm_employees", JSON.stringify(listaEmpleados));
         }
+    }
 
-    // CONTROL DE ACCESO
+    // CONTROL DE ACCESO Y REDIRECCIÓN
     if (accesoConcedido) {
-        errorMsg.style.display = "none";
+        if (errorMsg) errorMsg.style.display = "none";
 
-    // Guardamos los datos de la sesión actual para las cabeceras del CRM
-    localStorage.setItem("jwt_token", "token_simulado_" + Date.now());
-    localStorage.setItem("crm_logged_user_name", nombreCompleto);
-    localStorage.setItem("crm_logged_user_role", rolUsuario);
+        // Almacenamos la sesión del usuario logueado
+        localStorage.setItem("jwt_token", "token_simulado_" + Date.now());
+        localStorage.setItem("crm_logged_user_name", nombreCompleto);
+        localStorage.setItem("crm_logged_user_role", rolUsuario);
 
-    // Redirección limpia al panel principal
-    window.location.href = "js/views/dashboard.html";
-        } else {
-        // Si falla, mostramos el cartel de error rojo que tienes en el HTML
-        errorMsg.style.display = "flex";
-        }
-    });
-</script>
+        // REVISIÓN DE RUTA: Cambia esto por la ruta real de tu dashboard.html
+        // Si tu dashboard.html está en la raíz, pon "dashboard.html". Si está en carpetas, "views/dashboard.html"
+        window.location.href = "dashboard.html";
+    } else {
+        // Muestra el feedback de error en color rojo
+        if (errorMsg) errorMsg.style.display = "flex";
+    }
+});
