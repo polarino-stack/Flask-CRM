@@ -1,3 +1,8 @@
+/**
+ * ==========================================================================
+ * CRM RESTAURANTE: MOTOR DE AUTENTICACIÓN SAAS Y CONTROL DE ACCESO (FRONTEND)
+ * ==========================================================================
+ */
 document.getElementById('form-login').addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -5,11 +10,10 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
     const passInput = document.getElementById('password').value;
     const errorMsg = document.getElementById('error-message');
 
-    // 1. Contraseña del Administrador Principal (Julio)
+    // 1. Obtener clave del Administrador del LocalStorage (Por defecto: admin1234)
     const adminPasswordConfig = localStorage.getItem("crm_admin_password") || "admin1234";
 
-    // 2. CORRECCIÓN DE SEGURIDAD: Semillero local si el ordenador está vacío
-    // Esto garantiza que Carlos y Lucía existan en el Login del instituto
+    // 2. SEMILLERO DE SEGURIDAD (Arranque limpio para la casa de tu compañero o instituto)
     let listaEmpleados = JSON.parse(localStorage.getItem("crm_employees"));
 
     if (!listaEmpleados || listaEmpleados.length === 0) {
@@ -17,6 +21,8 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
             { id: "1", name: "Carlos Martínez", username: "cmartinez", password: "1234", role: "SUPERVISOR" },
             { id: "2", name: "Lucía Gómez", username: "lgomez", password: "1234", role: "CAMARERO" }
         ];
+        // Dejamos el semillero inicializado en el storage para el resto de pantallas
+        localStorage.setItem("crm_employees", JSON.stringify(listaEmpleados));
     }
 
     let accesoConcedido = false;
@@ -35,8 +41,7 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
     else {
         const empleadoEncontrado = listaEmpleados.find(emp => emp.username === userInput);
 
-        // CORRECCIÓN DE LOGICA: Si el empleado de la demo no tiene password en el array de personal.js, 
-        // permitimos que su contraseña sea su propio username o "1234"
+        // Verificamos si coincide su clave o la maestra de la demo "1234"
         const contrasenaCorrecta = empleadoEncontrado && (empleadoEncontrado.password === passInput || passInput === "1234");
 
         if (empleadoEncontrado && contrasenaCorrecta) {
@@ -44,27 +49,27 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
             rolUsuario = empleadoEncontrado.role;
             nombreCompleto = empleadoEncontrado.name;
 
-            // Efecto reflejo en tiempo real
+            // Fichaje automático reflejo al loguearse
             empleadoEncontrado.status = "TRABAJANDO";
             empleadoEncontrado.lastAccess = `Hoy ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
             localStorage.setItem("crm_employees", JSON.stringify(listaEmpleados));
         }
     }
 
-    // CONTROL DE ACCESO Y REDIRECCIÓN
+    // CONTROL DE ACCESO FINAL
     if (accesoConcedido) {
         if (errorMsg) errorMsg.style.display = "none";
 
-        // Almacenamos la sesión del usuario logueado
+        // Grabamos sesión viva
         localStorage.setItem("jwt_token", "token_simulado_" + Date.now());
         localStorage.setItem("crm_logged_user_name", nombreCompleto);
         localStorage.setItem("crm_logged_user_role", rolUsuario);
 
-        // REVISIÓN DE RUTA: Cambia esto por la ruta real de tu dashboard.html
-        // Si tu dashboard.html está en la raíz, pon "dashboard.html". Si está en carpetas, "views/dashboard.html"
-        window.location.href = "dashboard.html";
+        // ALINEACIÓN DE RUTA ORIGINAL CORREGIDA:
+        // Tu HTML busca "js/views/dashboard.html", nos aseguramos de mantener tu mapa de carpetas exacto
+        window.location.href = "js/views/dashboard.html";
     } else {
-        // Muestra el feedback de error en color rojo
+        // Activamos el cartel rojo de error
         if (errorMsg) errorMsg.style.display = "flex";
     }
 });
