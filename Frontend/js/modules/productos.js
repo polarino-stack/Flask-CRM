@@ -46,19 +46,36 @@ function guardarEnLocalStorage() {
 }
 
 function actualizarTarjetasEstadisticas() {
+    // 1. REFRESH: Forzamos a la función a leer los datos más nuevos del almacén
+    const inventarioVivo = JSON.parse(localStorage.getItem("crm_inventario")) || [];
+
     let totalUnidades = 0;
     let pocoStock = 0;
     let agotados = 0;
 
-    inventario.forEach(p => {
-        totalUnidades += p.stock;
-        if (p.stock === 0) agotados++;
-        else if (p.stock <= 10) pocoStock++;
+    // 2. Recorremos el buffer vivo del LocalStorage
+    inventarioVivo.forEach(p => {
+        const stockActual = parseInt(p.stock) || 0;
+
+        totalUnidades += stockActual;
+
+        if (stockActual === 0) {
+            agotados++;
+        } else if (stockActual <= 10) {
+            pocoStock++; // Cuenta +1 por cada producto diferente que esté entre 1 y 10 unidades
+        }
     });
 
-    document.getElementById('stat-total-stock').innerText = `${totalUnidades} uds`;
-    document.getElementById('stat-low-stock').innerText = pocoStock;
-    document.getElementById('stat-out-stock').innerText = agotados;
+    // 3. Inyectamos los contadores puros en los ganchos del DOM
+    if (document.getElementById('stat-total-stock')) {
+        document.getElementById('stat-total-stock').innerText = totalUnidades;
+    }
+    if (document.getElementById('stat-low-stock')) {
+        document.getElementById('stat-low-stock').innerText = pocoStock;
+    }
+    if (document.getElementById('stat-out-stock')) {
+        document.getElementById('stat-out-stock').innerText = agotados;
+    }
 }
 
 function renderizarTabla(listaFiltrada = inventario) {
@@ -122,6 +139,20 @@ window.registrarVentaDirecta = function (id) {
         let ventasTotales = parseFloat(localStorage.getItem("crm_ventas_acumuladas")) || 1240.50;
         ventasTotales += producto.precio;
         localStorage.setItem("crm_ventas_acumuladas", ventasTotales.toFixed(2));
+
+        // ==========================================================================
+        // GUARDAR LA VENTA DIRECTA POR CATEGORÍA
+        // ==========================================================================
+        let historialCategorias = JSON.parse(localStorage.getItem("crm_ventas_categorias")) || {
+            'BEBIDAS': 0, 'BEBIDAS ALCOHÓLICAS': 0, 'EMBUTIDOS': 0, 'CONDIMENTOS': 0, 'FRUTAS Y VEGETALES': 0
+        };
+
+        // Sumamos una unidad a la categoría de este producto de forma estricta
+        const catUpper = producto.categoria.toUpperCase();
+        if (historialCategorias[catUpper] !== undefined) {
+            historialCategorias[catUpper]++;
+            localStorage.setItem("crm_ventas_categorias", JSON.stringify(historialCategorias));
+        }
 
         guardarEnLocalStorage();
         renderizarTabla();

@@ -283,7 +283,17 @@ body {
 }
 
 .welcome-header {
-    margin-bottom: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    gap: 14px;
+}
+
+.welcome-title-block {
+    text-align: left;
 }
 
 .welcome-header h1 {
@@ -294,6 +304,31 @@ body {
 .welcome-header p {
     color: var(--text-muted);
     margin-top: 4px;
+}
+
+/* Mi contenedor estilizado para los datos de contacto */
+.info-adicional {
+    display: flex;
+    gap: 20px;
+    background-color: #f8fafc;
+    /* Gris ultra-suave que hace resaltar el texto */
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    align-items: center;
+    width: fit-content;
+    /*Estilo para separar la seccion de info adicional de las tarjetas kips*/
+    margin-bottom: 16px;
+}
+
+.info-adicional span {
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+    /* Gris oscuro elegante de alta legibilidad */
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .kpi-grid {
@@ -449,5 +484,19 @@ body {
 
     .search-box {
         display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .welcome-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .info-adicional {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
     }
 }

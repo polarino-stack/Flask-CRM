@@ -1,10 +1,10 @@
 /**
  * ==========================================================================
- * CRM RESTAURANTE: MÓDULO DE GESTIÓN DE PERSONAL (CORE JS)
+ * CRM RESTAURANTE: MÓDULO DE GESTIÓN DE PERSONAL
  * ==========================================================================
  */
 
-// 1. ESTADO GLOBAL DE LA APLICACIÓN (Simulación de Base de Datos / Preparado para API)
+// 1. ESTADO GLOBAL DE LA APLICACIÓN (SIMULACION DE UNA BASE DE DATOS)
 let employees = [
     {
         id: "1",
@@ -311,17 +311,23 @@ window.toggleAttendance = function (id) {
     const employee = employees.find(e => e.id === id);
     if (!employee) return;
 
-    const rightNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const fechaHoy = new Date().toLocaleDateString([], { day: '2-digit', month: '2-digit' });
+    const horaActual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const estampaTiempo = `${fechaHoy} ${horaActual}`;
 
     if (employee.status !== "TRABAJANDO") {
         employee.status = "TRABAJANDO";
-        attendanceHistory.push({ id: employee.id, name: employee.name, checkIn: rightNow, checkOut: null });
-        showToastNotification(`⏱️ ${employee.name} ha marcado ENTRADA a las ${rightNow}.`);
+        // Al entrar a trabajar, guardamos su traza de acceso para la tabla de seguridad
+        employee.lastAccess = `Hoy ${horaActual}`;
+        attendanceHistory.push({ id: employee.id, name: employee.name, checkIn: horaActual, checkOut: null });
+        showToastNotification(`⏱️ ${employee.name} ha marcado ENTRADA a las ${horaActual}.`);
     } else {
         employee.status = "ACTIVO";
+        // Al salir de trabajar, se mantiene su último acceso pero cambia su estado visual
+        employee.lastAccess = `Hoy ${horaActual}`;
         const record = attendanceHistory.find(r => r.id === employee.id && !r.checkOut);
-        if (record) record.checkOut = rightNow;
-        showToastNotification(`⏱️ ${employee.name} ha marcado SALIDA a las ${rightNow}.`);
+        if (record) record.checkOut = horaActual;
+        showToastNotification(`⏱️ ${employee.name} ha marcado SALIDA a las ${horaActual}.`);
     }
 
     updateStorage();

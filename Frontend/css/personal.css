@@ -32,12 +32,40 @@
     margin-right: 8px;
 }
 
-.personal-header {
+.main-content .dashboard-body .welcome-header.personal-header {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
+    margin-bottom: 24px;
     flex-wrap: wrap;
     gap: 16px;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* Forzar que el subcontenedor de textos mantenga su bloque izquierdo */
+.main-content .dashboard-body .welcome-header.personal-header>div {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.main-content .dashboard-body .welcome-header.personal-header h1 {
+    text-align: left;
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.main-content .dashboard-body .welcome-header.personal-header p {
+    text-align: left;
+    color: #64748b;
+    font-size: 14px;
+    margin-top: 4px;
 }
 
 .btn-add-employee {

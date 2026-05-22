@@ -1,0 +1,544 @@
+/* ==========================================================================
+   MI ARQUITECTURA DE CONTENEDORES Y REJILLAS DE CONFIGURACIÓN
+   ========================================================================== */
+.config-layout-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.config-card-box {
+    height: auto !important;
+    padding: 24px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.full-width-grid {
+    grid-column: span 2;
+}
+
+/* Modificación para alinear cabeceras complejas con buscador */
+.flex-header-reports {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.table-actions-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.table-actions-group input {
+    height: 42px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    outline: none;
+    color: #1e293b;
+}
+
+.table-actions-group input:focus {
+    border-color: #10b981;
+}
+
+/* ==========================================================================
+   ESTILADO DE FORMULARIOS 
+   ========================================================================== */
+
+.premium-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+}
+
+.premium-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.premium-form .form-grid-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.premium-form label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.premium-form input,
+.select-filter-full {
+    width: 100%;
+    padding: 10px 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    color: #1e293b;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.premium-form input:focus,
+.select-filter-full:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+}
+
+/* Ocultar/Mostrar Contraseña */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    padding-right: 40px;
+}
+
+.btn-view-pass {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    outline: none;
+}
+
+/* ==========================================================================
+   MIS INPUTS DE SEGURIDAD Y BOTONES INTEGRADOS
+   ========================================================================== */
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    padding-right: 44px !important;
+}
+
+.btn-view-pass {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    outline: none;
+}
+
+.select-filter-full {
+    width: 100%;
+    height: 44px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #1e293b;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    outline: none;
+}
+
+.select-filter-full:focus {
+    border-color: #10b981;
+}
+
+/* Subsecciones de auditoría y seguridad */
+.security-log-section {
+    margin-top: 16px;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sub-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+}
+
+/* ==========================================================================
+   MIS REGLAS DE BOTONES CORPORATIVOS
+   ========================================================================== */
+.btn-submit-config {
+    width: 60%;
+    align-self: center;
+    padding: 12px 24px;
+    background-color: #1e293b;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+
+.btn-submit-config:hover {
+    background-color: #334155;
+    transform: translateY(-1px);
+}
+
+.btn-submit-config.security-btn {
+    background-color: #334155;
+}
+
+.btn-submit-config.security-btn:hover {
+    background-color: #475569;
+}
+
+.btn-close-sessions {
+    align-self: center;
+    /* Evita que ocupe todo el flexbox */
+    width: auto;
+    max-width: 100%;
+    border: 1px dashed #ef4444;
+    color: #ef4444;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: rgba(239, 68, 68, 0.02);
+    margin-top: 8px;
+}
+
+.btn-close-sessions:hover {
+    background-color: rgba(239, 68, 68, 0.08);
+}
+
+/* Subsección del log de accesos */
+.security-log-section {
+    margin-top: 12px;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sub-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: left;
+}
+
+.btn-add-table {
+    height: 42px;
+    padding: 0 16px;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-add-table:hover {
+    background-color: #059669;
+}
+
+/* Badges dinámicos de las zonas asignadas */
+.badge-zone {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+/* ==========================================================================
+   ESTILOS GENERALES COMPARTIDOS PARA MIS TABLAS DE ANALÍTICA
+   ========================================================================== */
+.table-responsive-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    margin-top: 8px;
+}
+
+.architecture-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background-color: #ffffff;
+}
+
+.architecture-table th {
+    background-color: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.architecture-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #1e293b;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.architecture-table tr:hover td {
+    background-color: #f8fafc;
+}
+
+.text-left-table th,
+.text-left-table td {
+    text-align: left;
+}
+
+/* Clase global para el buscador y el selector de Zonas del módulo */
+.table-actions-group .select-filter,
+.table-actions-group input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    height: 42px;
+    padding: 10px 36px 10px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1e293b;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+select.select-filter {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 12px) center;
+    background-size: 12px;
+    cursor: pointer;
+}
+
+.table-actions-group .select-filter:focus,
+.table-actions-group input:focus {
+    border-color: #10b981;
+}
+
+/* ==========================================================================
+   ESTILO PARA MI VENTANA MODALE DE NUEVA MESA
+   ========================================================================== */
+/* El fondo oscuro translúcido que cubre todo el CRM */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.4);
+    /* Gris oscuro translúcido */
+    backdrop-filter: blur(4px);
+    /* Desenfoque de fondo estilo cristal */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    /* Fuerza a que esté por encima de todo */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* Cuando el modal tiene la clase .open (se vuelve visible) */
+.modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* La caja blanca del contenedor del formulario interno */
+.modal-box {
+    background: #ffffff;
+    width: 100%;
+    max-width: 480px;
+    /* Ancho máximo contenido elegante */
+    padding: 32px;
+    border-radius: 12px;
+    /* Bordes redondeados SaaS */
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: scale(0.95);
+    /* Efecto elástico inicial */
+    transition: transform 0.3s ease;
+    box-sizing: border-box;
+}
+
+/* Animación elástica cuando se despliega */
+.modal-overlay.open .modal-box {
+    transform: scale(1);
+}
+
+/* Cabecera interna del modal */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 12px;
+}
+
+.modal-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* Botón de aspa para cerrar (X) */
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #94a3b8;
+    transition: color 0.2s ease;
+    outline: none;
+}
+
+.modal-close-btn:hover {
+    color: #475569;
+}
+
+/* Botón de guardar cambios de mesa */
+.btn-submit-booking {
+    width: 100%;
+    padding: 14px;
+    background-color: #1e293b;
+    /* Tu color gris oscuro corporativo */
+    color: #ffffff;
+    /* Texto blanco limpio */
+    border: none;
+    border-radius: 8px;
+    /* Bordes redondeados SaaS */
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    margin-top: 16px;
+    box-sizing: border-box;
+}
+
+/* Efecto hover interactivo al pasar el cursor */
+.btn-submit-booking:hover {
+    background-color: #334155;
+    transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   MIS BOTONES DE ACCIÓN PARA LAS MESAS Y ZONAS (EDITAR Y ELIMINAR)
+   ========================================================================== */
+.row-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Base unificada para los botones tipo píldora */
+.action-btn-pill {
+    padding: 6px 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botón Editar: Estilo Gris Oscuro / Slate corporativo */
+.action-btn-pill.btn-edit {
+    background-color: #1e293b;
+    color: #ffffff;
+    border: 1px solid #1e293b;
+}
+
+.action-btn-pill.btn-edit:hover {
+    background-color: #334155;
+    border-color: #334155;
+    transform: translateY(-1px);
+}
+
+/* Botón Eliminar: Estilo Coral / Naranja elegante suave para alertas */
+.action-btn-pill.btn-delete {
+    background-color: rgba(239, 68, 68, 0.08);
+    /* Fondo sutil destructivo */
+    color: #ef4444;
+    /* Texto coral/rojo elegante */
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.action-btn-pill.btn-delete:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+/* ==========================================================================
+   MI DISEÑO REACTIVO ADAPTATIVO (MEDIA QUERIES)
+   ========================================================================== */
+@media (max-width: 1024px) {
+    .config-layout-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .full-width-grid {
+        grid-column: span 1;
+    }
+}

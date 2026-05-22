@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     cargarSidebar();
-    marcarEnlaceActivo();
+
 });
 
 function cargarSidebar() {
@@ -15,7 +15,9 @@ function cargarSidebar() {
         })
         .then(html => {
             sidebarContainer.innerHTML = html;
-            
+
+            marcarEnlaceActivo();
+
             // Asignar el evento de cerrar sesión una vez cargado el botón en el DOM
             document.getElementById('btn-logout').addEventListener('click', cerrarSesion);
         })
@@ -25,12 +27,13 @@ function cargarSidebar() {
 function marcarEnlaceActivo() {
     const path = window.location.pathname;
     const page = path.split("/").pop();
-    
+
     setTimeout(() => {
         if (page === "dashboard.html") document.getElementById("link-dashboard")?.classList.add("active");
         if (page === "productos.html") document.getElementById("link-productos")?.classList.add("active");
         if (page === "reservas.html") document.getElementById("link-reservas")?.classList.add("active");
         if (page === "personal.html") document.getElementById("link-personal")?.classList.add("active");
+        if (page === "configuracion.html") document.getElementById("link-configuracion")?.classList.add("active");
     }, 150);
 }
 

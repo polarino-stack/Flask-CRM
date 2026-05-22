@@ -1,14 +1,44 @@
-.inventory-header {
+.main-content .dashboard-body .welcome-header.inventory-header {
     display: flex;
+    flex-direction: row;
+    /* Fila horizontal */
     justify-content: space-between;
     align-items: center;
+    width: 100%;
+    margin-bottom: 24px;
     flex-wrap: wrap;
     gap: 16px;
+    border-bottom: none;
+    padding-bottom: 0;
 }
 
-.btn-add-product {
-    width: auto;
+/* Forzar alineación interna del bloque de textos */
+.main-content .dashboard-body .welcome-header.inventory-header>div {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.main-content .dashboard-body .welcome-header.inventory-header h1 {
+    text-align: left;
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+}
+
+.main-content .dashboard-body .welcome-header.inventory-header p {
+    text-align: left;
+    color: #64748b;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.main-content .dashboard-body .welcome-header.inventory-header .btn-add-product {
+    width: fit-content;
     padding: 12px 24px;
+    white-space: nowrap;
 }
 
 .inventory-kpi-margin {

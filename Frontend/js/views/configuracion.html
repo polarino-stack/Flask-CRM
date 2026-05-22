@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RestauranteCRM - Configuración Global</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link rel="stylesheet" href="../../css/configuracion.css">
+</head>
+<body>
+    <div class="app-container">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <h2>Configuración del Sistema</h2>
+                </div>
+                <div class="top-bar-right">
+                    <div class="user-profile">
+                        <span class="user-name">Julio Admin</span>
+                        <span class="user-role-badge">Administrador</span>
+                        <div class="user-avatar">JA</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-body">
+                <div class="welcome-header">
+                    <h1>Panel de Control General</h1>
+                    <p>Modifica los parámetros estructurales de tu restaurante, la distribución de la sala y los accesos de seguridad.</p>
+                </div>
+
+                <div class="config-layout-grid">
+                    
+                    <section class="chart-container config-card-box">
+                        <div class="chart-header">
+                            <h3 class="title-bold">🏬 Información General del Restaurante</h3>
+                        </div>
+                        <form id="form-restaurante" class="premium-form">
+                            <div class="form-group">
+                                <label for="cfg-rest-name">Nombre Comercial</label>
+                                <input type="text" id="cfg-rest-name" required placeholder="Ej: La Trattoria Premium">
+                            </div>
+                            <div class="form-group">
+                                <label for="cfg-rest-dir">Dirección Física</label>
+                                <input type="text" id="cfg-rest-dir" required placeholder="Ej: Carrer de Pujades, 102, Poblenou">
+                            </div>
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="cfg-rest-tel">Teléfono</label>
+                                    <input type="tel" id="cfg-rest-tel" required placeholder="Ej: 933001122">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cfg-rest-email">Email de Contacto</label>
+                                    <input type="email" id="cfg-rest-email" required placeholder="contacto@latrattoria.com">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cfg-rest-schedule">Horario de Atención</label>
+                                <input type="text" id="cfg-rest-schedule" required placeholder="Ej: Mar - Dom: 13:00 - 16:30, 20:00 - 00:00">
+                            </div>
+                            <button type="submit" class="btn-submit-config">Guardar Información Global</button>
+                        </form>
+                    </section>
+
+                    <section class="chart-container config-card-box">
+                        <div class="chart-header">
+                            <h3 class="title-bold">🔒 Seguridad y Control de Sesiones</h3>
+                        </div>
+                        <form id="form-seguridad" class="premium-form">
+                            <div class="form-group">
+                                <label for="cfg-pass">Cambiar Contraseña de Administrador</label>
+                                <div class="password-wrapper">
+                                    <input type="password" id="cfg-pass" placeholder="Ingresa nueva contraseña">
+                                    <button type="button" id="btn-toggle-pass" class="btn-view-pass">👁️</button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="cfg-timeout">Tiempo de Cierre de Sesión Automático</label>
+                                <select id="cfg-timeout" class="select-filter-full">
+                                    <option value="15">Inactividad: 15 minutos</option>
+                                    <option value="30" selected>Inactividad: 30 minutos</option>
+                                    <option value="60">Inactividad: 1 hora</option>
+                                    <option value="0">Nunca cerrar sesión</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-submit-config security-btn">Actualizar Parámetros de Seguridad</button>
+                        </form>
+
+                        <div class="security-log-section">
+                            <h4 class="sub-section-title">Historial Básico de Accesos</h4>
+                            <div class="table-responsive-wrapper">
+                                <table class="architecture-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Usuario</th>
+                                            <th>Último Acceso</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="security-tbody">
+                                        </tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="btn-close-sessions" id="btn-kill-sessions">⚠️ Cerrar Todas las Demás Sesiones Activas</button>
+                        </div>
+                    </section>
+
+                    <section class="chart-container config-card-box full-width-grid">
+                        <div class="chart-header flex-header-reports">
+                            <h3 class="title-bold">🪑 Configuración Estructural de Mesas y Zonas</h3>
+                            <div class="table-actions-group">
+                                <input type="text" id="table-search" placeholder="Buscar mesa o zona...">
+                                <select id="table-zone-filter" class="select-filter">
+                                    <option value="TODOS">Todas las Zonas</option>
+                                </select>
+                                <button type="button" class="btn-add-table" id="btn-add-table-modal">+ Nueva Mesa</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive-wrapper">
+                            <table class="architecture-table text-left-table">
+                                <thead>
+                                    <tr>
+                                        <th>Identificador Mesa</th>
+                                        <th>Capacidad (Pax Máx)</th>
+                                        <th>Ubicación / Zona</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tables-config-tbody">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="table-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2 id="modal-title-table">Añadir Estructura de Mesa</h2>
+                <button id="btn-close-modal-table" class="modal-close-btn">&times;</button>
+            </div>
+            <form id="form-modal-table" class="premium-form">
+                <input type="hidden" id="modal-table-index">
+                <div class="form-group">
+                    <label for="modal-table-id">Código / ID de la Mesa</label>
+                    <input type="text" id="modal-table-id" placeholder="Ej: M9 o T9" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-table-pax">Capacidad Máxima (Comensales)</label>
+                    <input type="number" id="modal-table-pax" min="1" max="30" placeholder="4" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-table-zone-select">Asignar Zona</label>
+                    <select id="modal-table-zone-select" class="select-filter-full" required>
+                        <option value="INTERIOR">Zona Interior</option>
+                        <option value="TERRAZA">Zona Terraza</option>
+                        <option value="VIP">Zona VIP</option>
+                        <option value="LOUNGE">Zona Lounge</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="modal-table-new-zone">O crear una nueva zona dinámicamente</label>
+                    <input type="text" id="modal-table-new-zone" placeholder="Ej: Barra, Altillo, Reservado...">
+                </div>
+                <button type="submit" class="btn-submit-booking" style="margin-top: 12px;">Guardar Cambios de Mesa</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 380px; text-align: center;">
+            <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">¿Confirmar operación?</h2>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 24px;" id="confirm-modal-text">¿Estás seguro de realizar esta acción en el CRM?</p>
+            <div style="display: flex; gap: 12px;">
+                <button type="button" id="btn-confirm-cancel" class="btn-cancel-edit" style="width: 50%;">Cancelar</button>
+                <button type="button" id="btn-confirm-accept" class="btn-submit-booking" style="width: 50%; margin-top: 0; background-color: #ef4444;">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="../auth.js"></script>
+    <script src="../main.js"></script>
+    <script src="../modules/configuracion.js"></script>
+</body>
+</html>

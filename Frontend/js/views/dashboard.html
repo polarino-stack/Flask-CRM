@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/styles.css">
     <link rel="stylesheet" href="../../css/dashboard.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -27,16 +26,12 @@
                 </div>
                 
                 <div class="top-bar-right">
-                    <div class="notifications">
-                        <span class="noti-badge">3</span>
-                        <div class="icon-bell"></div>
-                    </div>
                     <div class="user-profile">
                         <div class="user-info">
-                            <span class="user-name">Julio Administrador</span>
-                            <span id="txt-user-role">Admin</span>
+                            <span class="user-name" id="header-user-name">Cargando...</span>
+                            <span id="header-user-role">--</span>
                         </div>
-                        <div class="user-avatar">JA</div>
+                        <div class="user-avatar" id="header-user-avatar">--</div>
                     </div>
                 </div>
             </header>
@@ -45,6 +40,13 @@
                 <div class="welcome-header">
                     <h1>Resumen General</h1>
                     <p>Esto es lo que está pasando hoy en tu restaurante.</p>
+                </div>
+
+                <div id="restaurant-metadata" class="info-adicional">
+                    <span id="meta-dir">📍 Cargando dirección...</span>
+                    <span id="meta-tel">📞 </span>
+                    <span id="meta-email">✉️ </span>
+                    <span id="meta-schedule">⏱️ </span>
                 </div>
 
                 <section class="kpi-grid">
@@ -78,7 +80,7 @@
                     <div class="kpi-card">
                         <div class="kpi-icon icon-staff"></div>
                         <div class="kpi-data">
-                            <h3>Personal Activo</h3>
+                            <h3>Personal</h3>
                             <p class="value" id="kpi-staff">0</p>
                             <span class="trend" style="color: #3b82f6;" id="kpi-staff-sub">0 Trabajando ahora</span>
                         </div>
