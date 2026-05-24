@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MÓDULO DE RESERVAS: MAQUETACIÓN E INTERFAZ PREMUM
+    MÓDULO DE RESERVAS: MAQUETACIÓN E INTERFAZ PREMUM
    ========================================================================== */
 /* Colores de variables específicas de Reservas */
 .text-pending {
@@ -258,7 +258,7 @@
 }
 
 /* ==========================================================================
-   ESTILOS PREMIUM PARA LOS FILTROS (FECHA Y SELECT)
+    ESTILOS PREMIUM PARA LOS FILTROS (FECHA Y SELECT)
    ========================================================================== */
 .filters-group {
     display: flex;
@@ -309,7 +309,7 @@ select.select-filter {
 }
 
 /* ==========================================================================
-   ESTILOS PARA EL LIBRO DE REGISTRO GENERAL (TABLA Y FILTROS)
+    ESTILOS PARA EL LIBRO DE REGISTRO GENERAL (TABLA Y FILTROS)
    ========================================================================== */
 .bookings-chart-header {
     display: flex;

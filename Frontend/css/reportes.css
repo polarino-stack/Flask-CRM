@@ -1,5 +1,5 @@
 /* ==========================================================================
-   CLASE GLOBAL PARA TODOS LOS FILTROS (SELECTS Y CALENDARIOS)
+    CLASE GLOBAL PARA TODOS LOS FILTROS (SELECTS Y CALENDARIOS)
    ========================================================================== */
 
 /* Regla base general para inputs de tipo fecha y selects */
@@ -49,7 +49,7 @@ select.select-filter {
 }
 
 /* ==========================================================================
-   MÓDULO DE REPORTES Y ANALÍTICA AVANZADA: DISEÑO INTEGRADO SAAS
+    MÓDULO DE REPORTES Y ANALÍTICA AVANZADA: DISEÑO INTEGRADO SAAS
    ========================================================================== */
 
 .main-content .dashboard-body .welcome-header.reports-header {
@@ -174,7 +174,7 @@ select.select-filter {
 }
 
 /* ==========================================================================
-   COMPONENTE TIMELINE (LÍNEA DE TIEMPO DE AUDITORÍA)
+    COMPONENTE TIMELINE (LÍNEA DE TIEMPO DE AUDITORÍA)
    ========================================================================== */
 .timeline-wrapper {
     display: flex;
@@ -271,7 +271,7 @@ select.select-filter {
 }
 
 /* ==========================================================================
-   ESTILOS PREMIUM PARA LAS TABLAS DEL MÓDULO DE REPORTES
+    ESTILOS PREMIUM PARA LAS TABLAS DEL MÓDULO DE REPORTES
    ========================================================================== */
 
 /* Contenedor con scroll horizontal limpio en pantallas pequeñas */
@@ -350,7 +350,7 @@ select.select-filter {
 
 
 /* ==========================================================================
-   REGLAS DE DISEÑO RESPONSIVE ADAPTATIVO
+    REGLAS DE DISEÑO RESPONSIVE ADAPTATIVO
    ========================================================================== */
 @media (max-width: 1200px) {
     .reports-tables-layout {

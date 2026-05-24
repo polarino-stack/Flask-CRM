@@ -1,5 +1,5 @@
 /* ==========================================================================
-   MI ARQUITECTURA DE CONTENEDORES Y REJILLAS DE CONFIGURACIÓN
+    MI ARQUITECTURA DE CONTENEDORES Y REJILLAS DE CONFIGURACIÓN
    ========================================================================== */
 .config-layout-grid {
     display: grid;
@@ -55,7 +55,7 @@
 }
 
 /* ==========================================================================
-   ESTILADO DE FORMULARIOS 
+    ESTILADO DE FORMULARIOS 
    ========================================================================== */
 
 .premium-form {
@@ -127,7 +127,7 @@
 }
 
 /* ==========================================================================
-   MIS INPUTS DE SEGURIDAD Y BOTONES INTEGRADOS
+    MIS INPUTS DE SEGURIDAD Y BOTONES INTEGRADOS
    ========================================================================== */
 
 .password-wrapper {
@@ -188,7 +188,7 @@
 }
 
 /* ==========================================================================
-   MIS REGLAS DE BOTONES CORPORATIVOS
+    MIS REGLAS DE BOTONES CORPORATIVOS
    ========================================================================== */
 .btn-submit-config {
     width: 60%;
@@ -292,7 +292,7 @@
 }
 
 /* ==========================================================================
-   ESTILOS GENERALES COMPARTIDOS PARA MIS TABLAS DE ANALÍTICA
+    ESTILOS GENERALES COMPARTIDOS PARA MIS TABLAS DE ANALÍTICA
    ========================================================================== */
 .table-responsive-wrapper {
     overflow-x: auto;
@@ -368,7 +368,7 @@ select.select-filter {
 }
 
 /* ==========================================================================
-   ESTILO PARA MI VENTANA MODALE DE NUEVA MESA
+    ESTILO PARA MI VENTANA MODALE DE NUEVA MESA
    ========================================================================== */
 /* El fondo oscuro translúcido que cubre todo el CRM */
 .modal-overlay {
@@ -477,7 +477,7 @@ select.select-filter {
 }
 
 /* ==========================================================================
-   MIS BOTONES DE ACCIÓN PARA LAS MESAS Y ZONAS (EDITAR Y ELIMINAR)
+    MIS BOTONES DE ACCIÓN PARA LAS MESAS Y ZONAS (EDITAR Y ELIMINAR)
    ========================================================================== */
 .row-actions {
     display: flex;
@@ -531,7 +531,7 @@ select.select-filter {
 }
 
 /* ==========================================================================
-   MI DISEÑO REACTIVO ADAPTATIVO (MEDIA QUERIES)
+    MI DISEÑO REACTIVO ADAPTATIVO (MEDIA QUERIES)
    ========================================================================== */
 @media (max-width: 1024px) {
     .config-layout-grid {

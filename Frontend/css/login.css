@@ -1,5 +1,5 @@
 /* ==========================================================================
-   VARIABLES DE DISEÑO Y CONFIGURACIÓN GENERAL
+    VARIABLES DE DISEÑO Y CONFIGURACIÓN GENERAL
    ========================================================================== */
 :root {
     --bg-primary: #ffffff;
@@ -36,7 +36,7 @@ body {
 }
 
 /* ==========================================================================
-   ESTRUCTURA DE DOBLE PANEL (RESPONSIVE)
+    ESTRUCTURA DE DOBLE PANEL (RESPONSIVE)
    ========================================================================== */
 
 .login-container {
@@ -88,7 +88,7 @@ body {
 }
 
 /* ==========================================================================
-   COMPONENTES DEL FORMULARIO
+    COMPONENTES DEL FORMULARIO
    ========================================================================== */
 .login-box {
     width: 100%;
@@ -290,7 +290,7 @@ body {
 }
 
 /* ==========================================================================
-   DISEÑO TARJETA GLASSMORPHISM (PANEL DERECHO)
+    DISEÑO TARJETA GLASSMORPHISM (PANEL DERECHO)
    ========================================================================== */
 
 .glass-card {
@@ -337,7 +337,7 @@ body {
 }
 
 /* ==========================================================================
-   ANIMACIONES Y RESPONSIVE
+    ANIMACIONES Y RESPONSIVE
    ========================================================================== */
 
 @keyframes shake {
