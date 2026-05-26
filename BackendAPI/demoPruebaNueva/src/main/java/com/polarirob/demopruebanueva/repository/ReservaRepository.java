@@ -24,7 +24,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
     @Query(value = "SELECT * FROM reserva r WHERE r.mesa_id = :mesaId " +
             "AND r.fecha_reserva = :fechaReserva " +
-            "AND r.estado NOT IN ('CANCELADA', 'NO_PRESENTADO') " +
+            "AND r.estado NOT IN ('CANCELADA', 'NO_PRESENTADO', 'FINALIZADA', 'COMPLETADA') " +
             "AND r.hora_inicio < :horaFin " +
             "AND r.hora_fin > :horaInicio",
             nativeQuery = true)

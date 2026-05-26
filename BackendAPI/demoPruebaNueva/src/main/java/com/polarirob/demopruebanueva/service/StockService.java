@@ -41,6 +41,37 @@ public class StockService {
         return productoStockRepository.save(producto);
     }
 
+    @Transactional
+    public ProductoStock actualizarProducto(Long productoId, CrearProductoStockRequest request) {
+        validarRequest(request);
+
+        ProductoStock producto = productoStockRepository.findById(productoId)
+                .orElseThrow(() -> new IllegalArgumentException("El producto indicado no existe"));
+
+        CategoriaStock categoria = resolverCategoria(request);
+        productoStockRepository.findByCategoriaAndNombre(categoria, request.getNombre().trim())
+                .ifPresent(existente -> {
+                    if (!existente.getId().equals(productoId)) {
+                        throw new IllegalStateException("Ya existe un producto con ese nombre en la categoria");
+                    }
+                });
+
+        producto.setCategoria(categoria);
+        producto.setNombre(request.getNombre().trim());
+        producto.setCantidad(request.getCantidad());
+        producto.setStockMinimo(request.getStockMinimo() != null ? request.getStockMinimo() : 0);
+        producto.setUnidadMedida(normalizarUnidad(request.getUnidadMedida()));
+        producto.setTelefonoProveedor(normalizarOpcional(request.getTelefonoProveedor()));
+        return productoStockRepository.save(producto);
+    }
+
+    @Transactional
+    public void eliminarProducto(Long productoId) {
+        ProductoStock producto = productoStockRepository.findById(productoId)
+                .orElseThrow(() -> new IllegalArgumentException("El producto indicado no existe"));
+        productoStockRepository.delete(producto);
+    }
+
     private CategoriaStock resolverCategoria(CrearProductoStockRequest request) {
         if (request.getCategoriaId() != null) {
             return categoriaStockRepository.findById(request.getCategoriaId())
