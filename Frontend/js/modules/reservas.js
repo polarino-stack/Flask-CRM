@@ -53,8 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     inputFecha.value = hoy;
 
     // Inicializar componentes dinámicos
-    poblarDesplegableMesas();
-    initReservasModule();
+    cargarDatosDelBackend();
 
     // Listeners (Se quedan exactamente igual)
     formReserva.addEventListener("submit", guardarReserva);
@@ -63,6 +62,66 @@ document.addEventListener("DOMContentLoaded", () => {
     inputBuscador.addEventListener("input", initReservasModule);
     btnCancelEdit.addEventListener("click", abortarEdicion);
 });
+
+/**
+ * Carga datos iniciales del backend (mesas y reservas)
+ */
+async function cargarDatosDelBackend() {
+    try {
+        showToast("Cargando datos del servidor...");
+        // Cargar mesas del backend
+        const mesas = await obtenerMesas();
+        
+        // Transformar mesas del backend al formato frontend (con id como string)
+        mapaMesasVivas = mesas.map(mesa => ({
+            id: mesa.numeroMesa.toString(),
+            zona: mesa.numeroMesa <= 8 ? "INTERIOR" : "TERRAZA",  // Heurística: 1-8 interior, >8 terraza
+            paxMax: mesa.capacidad,
+            backendId: mesa.id  // Guardar ID real para cuando enviemos datos
+        })) || mesasEstructuralesDefecto;
+        
+        // Cargar reservas del backend
+        const hoy = inputFechaFiltro.value;
+        const reservasDelServidor = await obtenerReservas(hoy) || [];
+        
+        // Transformar reservas del backend al formato frontend
+        libroReservas = reservasDelServidor.map(res => {
+            // Extraer la hora en formato HH:mm
+            const horaStr = res.horaInicio ? res.horaInicio.slice(0, 5) : "12:00";
+            const fechaStr = res.fechaReserva || new Date().toISOString().split('T')[0];
+            
+            return {
+                id: res.id.toString(),
+                nombre: res.nombreCliente,
+                telefono: res.telefonoCliente || "",
+                pax: res.numeroPersonas,
+                hora: horaStr,
+                fecha: fechaStr,
+                mesaId: res.mesa?.numeroMesa?.toString() || "",
+                mesaBackendId: res.mesa?.id,  // ID real de BD
+                notas: res.observaciones || "Ninguna",
+                estado: res.estado || "CONFIRMADA",
+                responsable: "Sistema",
+                backendId: res.id  // Guardar ID real de BD
+            };
+        });
+        
+        localStorage.setItem("crm_mesas_config", JSON.stringify(mapaMesasVivas));
+        localStorage.setItem("crm_reservas", JSON.stringify(libroReservas));
+        
+        poblarDesplegableMesas();
+        initReservasModule();
+        showToast("Datos cargados correctamente.");
+    } catch (error) {
+        console.error("Error cargando datos del backend:", error);
+        // Fallback: usar datos locales
+        showToast("⚠️ Usando datos locales (backend no disponible)");
+        mapaMesasVivas = JSON.parse(localStorage.getItem("crm_mesas_config")) || mesasEstructuralesDefecto;
+        libroReservas = JSON.parse(localStorage.getItem("crm_reservas")) || reservasIniciales;
+        poblarDesplegableMesas();
+        initReservasModule();
+    }
+}
 
 function initReservasModule() {
     // Re-leer la configuración viva de mesas por si el usuario acaba de volver de esa pantalla
@@ -225,33 +284,84 @@ function calcularMetricasKpi() {
     localStorage.setItem("crm_kpi_reservas_pendientes", pendientes);
 }
 
-function guardarReserva(e) {
+async function guardarReserva(e) {
     e.preventDefault();
     const id = inputId.value;
 
-    const datos = {
-        nombre: inputNombre.value.trim(),
-        telefono: inputTelefono.value.trim(),
-        pax: parseInt(inputPax.value),
-        hora: inputHora.value,
-        fecha: inputFecha.value,
-        mesaId: selectMesaForm.value,
-        notas: inputNotas.value.trim() || "Ninguna",
-        responsable: "Julio Admin"
+    // Obtener mesa ID del backend
+    const mesaSeleccionada = mapaMesasVivas.find(m => m.id === selectMesaForm.value);
+    const mesaBackendId = mesaSeleccionada?.backendId || parseInt(selectMesaForm.value);
+
+    // Construir datos para enviar al backend
+    const datosBackend = {
+        nombreCliente: inputNombre.value.trim(),
+        telefonoCliente: inputTelefono.value.trim(),
+        numeroPersonas: parseInt(inputPax.value),
+        horaInicio: inputHora.value + ":00",  // Agregar segundos
+        fechaReserva: inputFecha.value,
+        mesaId: mesaBackendId,
+        observaciones: inputNotas.value.trim() || "Ninguna"
     };
 
-    if (id) {
-        const index = libroReservas.findIndex(r => r.id === id);
-        datos.id = id;
-        datos.estado = libroReservas[index].estado;
-        libroReservas[index] = datos;
-        showToast("Ficha de reserva modificada.");
-        abortarEdicion();
-    } else {
-        datos.id = Date.now().toString();
-        datos.estado = "PENDIENTE";
-        libroReservas.push(datos);
-        showToast(`Reserva para ${datos.nombre} registrada.`);
+    try {
+        if (id) {
+            // Actualizar reserva (actualmente solo soporta cambio de estado en backend)
+            const index = libroReservas.findIndex(r => r.id === id);
+            const datosLocales = {
+                id: id,
+                nombre: inputNombre.value.trim(),
+                telefono: inputTelefono.value.trim(),
+                pax: parseInt(inputPax.value),
+                hora: inputHora.value,
+                fecha: inputFecha.value,
+                mesaId: selectMesaForm.value,
+                notas: inputNotas.value.trim() || "Ninguna",
+                estado: libroReservas[index].estado,
+                responsable: "Sistema",
+                backendId: libroReservas[index].backendId
+            };
+            libroReservas[index] = datosLocales;
+            showToast("✓ Ficha de reserva actualizada.");
+            abortarEdicion();
+        } else {
+            // Crear nueva reserva en backend
+            const reservaCreada = await crearReserva(datosBackend);
+            const datosLocales = {
+                id: reservaCreada.id.toString(),
+                nombre: datosBackend.nombreCliente,
+                telefono: datosBackend.telefonoCliente,
+                pax: datosBackend.numeroPersonas,
+                hora: datosBackend.horaInicio.slice(0, 5),
+                fecha: datosBackend.fechaReserva,
+                mesaId: selectMesaForm.value,
+                notas: datosBackend.observaciones,
+                estado: "CONFIRMADA",
+                responsable: "Sistema",
+                backendId: reservaCreada.id,
+                mesaBackendId: mesaBackendId
+            };
+            libroReservas.push(datosLocales);
+            showToast(`✓ Reserva para ${datosBackend.nombreCliente} creada en el servidor.`);
+        }
+    } catch (error) {
+        console.error("Error guardando reserva:", error);
+        showToast("⚠️ Error al guardar. Guardando localmente...");
+        // Fallback a guardado local
+        if (!id) {
+            const datosLocales = {
+                id: Date.now().toString(),
+                nombre: inputNombre.value.trim(),
+                telefono: inputTelefono.value.trim(),
+                pax: parseInt(inputPax.value),
+                hora: inputHora.value,
+                fecha: inputFecha.value,
+                mesaId: selectMesaForm.value,
+                notas: inputNotas.value.trim() || "Ninguna",
+                estado: "PENDIENTE",
+                responsable: "Sistema"
+            };
+            libroReservas.push(datosLocales);
+        }
     }
 
     formReserva.reset();
