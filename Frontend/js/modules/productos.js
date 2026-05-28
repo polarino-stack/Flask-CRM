@@ -87,6 +87,7 @@ function poblarFiltrosDeCategorias() {
     }
 }
 
+// CORRECCIÓN: Control estricto de los tres estados de stock para los KPIs superiores
 function actualizarTarjetasEstadisticas(inventarioVivo) {
     let totalUnidades = 0;
     let pocoStock = 0;
@@ -97,9 +98,9 @@ function actualizarTarjetasEstadisticas(inventarioVivo) {
         totalUnidades += stockActual;
 
         if (stockActual === 0) {
-            agotados++;
+            agotados++; // <-- Cuenta exacta si no quedan unidades (Rojo)
         } else if (stockActual <= 10) {
-            pocoStock++;
+            pocoStock++; // <-- Cuenta exacta de 1 a 10 unidades (Amarillo)
         }
     });
 
@@ -108,6 +109,7 @@ function actualizarTarjetasEstadisticas(inventarioVivo) {
     if (document.getElementById('stat-out-stock')) document.getElementById('stat-out-stock').innerText = agotados;
 }
 
+// CORRECCIÓN: Renderizado dinámico de la tabla con sincronización total en Rojo (0) y Amarillo (1-10)
 function renderizarTabla(listaFiltrada = inventario) {
     const tbody = document.getElementById('inventory-tbody');
     tbody.innerHTML = "";
@@ -125,11 +127,12 @@ function renderizarTabla(listaFiltrada = inventario) {
         let badgeClass = "success";
         let badgeText = "Correcto";
 
+        // Evaluación de estados visuales idéntica a las tarjetas superiores
         if (stockReal === 0) {
-            badgeClass = "danger";
+            badgeClass = "danger"; // <-- Pinta en rojo usando tu clase de CSS
             badgeText = "Agotado";
-        } else if (stockReal <= 40) {
-            badgeClass = "warning";
+        } else if (stockReal <= 10) {
+            badgeClass = "warning"; // <-- Pinta en amarillo
             badgeText = "Bajo Stock";
         }
 
@@ -141,7 +144,7 @@ function renderizarTabla(listaFiltrada = inventario) {
             <td style="font-weight:700;">${stockReal}</td>
             <td><span class="badge ${badgeClass}">${badgeText}</span></td>
             <td>
-                <button class="action-btn sell" onclick="registrarVentaDirecta(${p.id})">Vender 1</button>
+                <button class="action-btn sell" onclick="registrarVentaDirecta(${p.id})" ${stockReal === 0 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>Vender 1</button>
                 <button class="action-btn edit" onclick="abrirModal(${p.id})">Editar</button>
                 <button class="action-btn delete" onclick="eliminarProducto(${p.id})">Eliminar</button>
             </td>

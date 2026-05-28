@@ -4,6 +4,10 @@
  * ==========================================================================
  */
 
+// Buffers dinámicos de almacenamiento (APIs de Spring Boot)
+let datosInventarioReporte = [];
+let datosPersonalReporte = [];
+
 // Elementos DOM
 const tbodyInventario = document.getElementById("rep-table-inventario");
 const tbodyPersonal = document.getElementById("rep-table-personal");
@@ -15,26 +19,60 @@ const filterCategory = document.getElementById("filter-category-rep");
 const filterDateInput = document.getElementById("filter-date-rep");
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Sincronizamos el arranque inicial con la fecha local de España
+    // Sincronizamos el arranque inicial con la fecha local
     const d = new Date();
     const hoyLocal = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
     if (filterDateInput) filterDateInput.value = hoyLocal;
-    ejecutarAnaliticaCRM();
+
+    // ARRANQUE EN CADENA ASÍNCRONO CONTRA LAS APIS
+    cargarInventarioDesdeAPIParaReportes();
 
     // Listeners reactivos
-    reportSearch.addEventListener("input", ejecutarAnaliticaCRM);
-    filterPeriod.addEventListener("change", ejecutarAnaliticaCRM);
-    filterCategory.addEventListener("change", ejecutarAnaliticaCRM);
-    filterDateInput.addEventListener("change", ejecutarAnaliticaCRM);
+    if (reportSearch) reportSearch.addEventListener("input", ejecutarAnaliticaCRM);
+    if (filterPeriod) filterPeriod.addEventListener("change", ejecutarAnaliticaCRM);
+    if (filterCategory) filterCategory.addEventListener("change", ejecutarAnaliticaCRM);
+    if (filterDateInput) filterDateInput.addEventListener("change", ejecutarAnaliticaCRM);
 });
 
 // ==========================================================================
-// CONTROL DEL TIEMPO: CONTROLA PASADO, PRESENTE Y FUTURO
+// CAPA DE CONEXIÓN CON LOS ENDPOINTS DE JAVA (SPRING BOOT)
 // ==========================================================================
+async function cargarInventarioDesdeAPIParaReportes() {
+    try {
+        console.log("Cargando inventario asíncrono para reportes en:", `${API_BASE_URL}/stock`);
+        const response = await fetch(`${API_BASE_URL}/stock`);
+        if (response.ok) {
+            datosInventarioReporte = await response.json();
+            window.inventario = datosInventarioReporte;
+        }
+    } catch (error) {
+        console.error("🔴 Error al cargar stock en reportes:", error);
+    } canceladores: {
+        // Pasamos al siguiente eslabón: cargar el personal real
+        await cargarEmpleadosDesdeAPIParaReportes();
+    }
+}
+
+async function cargarEmpleadosDesdeAPIParaReportes() {
+    try {
+        console.log("Cargando personal asíncrono para reportes en:", `${API_BASE_URL}/empleados`);
+        const response = await fetch(`${API_BASE_URL}/empleados`);
+        if (response.ok) {
+            datosPersonalReporte = await response.json();
+        }
+    } catch (error) {
+        console.error("🔴 Error al cargar empleados en reportes:", error);
+        // Fallback de seguridad local si se cae el servidor
+        datosPersonalReporte = JSON.parse(localStorage.getItem("crm_employees")) || [];
+    } finally {
+        // Cuando ya tenemos todos los datos de Java listos, disparamos la analítica
+        ejecutarAnaliticaCRM();
+    }
+}
+
 function ejecutarAnaliticaCRM() {
     const fechaSeleccionada = filterDateInput.value;
-
     const d = new Date();
     const hoyISO = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
@@ -44,13 +82,12 @@ function ejecutarAnaliticaCRM() {
         return;
     }
 
-    // CASO 2: PASADO O PRESENTE (Calculamos métricas leyendo LocalStorage en vivo)
+    // CASO 2: PASADO O PRESENTE
     calcularTarjetasAvanzadas();
     renderizarTablasReporte();
     construirTimelineAuditoria();
 }
 
-// Función auxiliar para bloquear el futuro
 function mostrarPantallaFuturoVacía(fecha) {
     document.getElementById("kpi-top-table").innerText = "—";
     document.getElementById("kpi-peak-hour").innerText = "—";
@@ -67,15 +104,10 @@ function mostrarPantallaFuturoVacía(fecha) {
 }
 
 function calcularTarjetasAvanzadas() {
-    // REFRESH EN VIVO: Extraemos buffers actualizados de la base de datos local
-    const stockData = JSON.parse(localStorage.getItem("crm_inventario")) || [];
-    const staffData = JSON.parse(localStorage.getItem("crm_employees")) || [];
     const bookingsData = JSON.parse(localStorage.getItem("crm_reservas")) || [];
-
     const fechaSeleccionada = filterDateInput.value;
     const reservasFiltradas = bookingsData.filter(b => b.fecha === fechaSeleccionada && (b.estado || "").toUpperCase() !== "CANCELADA");
 
-    // A. CALCULAR MESA MÁS RENTABLE (Con Fallback si está vacío)
     if (reservasFiltradas.length > 0) {
         const conteoMesas = {};
         reservasFiltradas.forEach(b => {
@@ -84,10 +116,9 @@ function calcularTarjetasAvanzadas() {
         let topMesa = Object.keys(conteoMesas).reduce((a, b) => conteoMesas[a] > conteoMesas[b] ? a : b);
         document.getElementById("kpi-top-table").innerText = `Mesa ${topMesa}`;
     } else {
-        document.getElementById("kpi-top-table").innerText = "Mesa M3"; // Fallback demo
+        document.getElementById("kpi-top-table").innerText = "Mesa M3";
     }
 
-    // B. CALCULAR HORA PICO (Con Fallback si está vacío)
     if (reservasFiltradas.length > 0) {
         const conteoHoras = {};
         reservasFiltradas.forEach(b => {
@@ -97,43 +128,41 @@ function calcularTarjetasAvanzadas() {
         let horaPico = Object.keys(conteoHoras).reduce((a, b) => conteoHoras[a] > conteoHoras[b] ? a : b);
         document.getElementById("kpi-peak-hour").innerText = `${horaPico} hrs`;
     } else {
-        document.getElementById("kpi-peak-hour").innerText = "14:00 hrs"; // Fallback demo
+        document.getElementById("kpi-peak-hour").innerText = "14:00 hrs";
     }
 
-    // C. VALOR TOTAL DEL INVENTARIO ACTUAL REAL
-    let totalValor = stockData.reduce((acc, p) => acc + ((parseFloat(p.precio) || 0) * (parseInt(p.stock) || 0)), 0);
+    let totalValor = datosInventarioReporte.reduce((acc, p) => acc + ((parseFloat(p.precio) || 1.50) * (parseInt(p.cantidad) || 0)), 0);
     document.getElementById("kpi-stock-value").innerText = `${totalValor.toFixed(2)} €`;
 
-    // D. PRODUCTIVIDAD EN VIVO (Detecta los empleados reales en estado TRABAJANDO)
-    let empleadosTrabajando = staffData.filter(e => (e.status || "").toUpperCase() === "TRABAJANDO").length;
+    // Calculamos horas estimadas usando el buffer real de la API
+    let empleadosTrabajando = datosPersonalReporte.filter(e => (e.status || "").toUpperCase() === "TRABAJANDO").length;
     let horasEstimadas = empleadosTrabajando * 8;
     document.getElementById("kpi-staff-hours").innerText = `${horasEstimadas} hrs est.`;
 }
 
 function renderizarTablasReporte() {
     const busqueda = reportSearch.value.toLowerCase().trim();
-    const catFiltro = filterCategory.value;
+    const catFiltro = filterCategory.value.toUpperCase();
     const fechaFiltro = filterDateInput.value;
 
     const d = new Date();
     const hoyISO = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-
-    const stockData = JSON.parse(localStorage.getItem("crm_inventario")) || [];
-    const staffData = JSON.parse(localStorage.getItem("crm_employees")) || [];
     const bookingsData = JSON.parse(localStorage.getItem("crm_reservas")) || [];
-
     const huboActividadPasada = bookingsData.some(b => b.fecha === fechaFiltro);
 
     // ==========================================================================
     // SECCIÓN 1: INVENTARIO CRÍTICO REAL EN VIVO
     // ==========================================================================
     tbodyInventario.innerHTML = "";
-
     if (fechaFiltro === hoyISO || huboActividadPasada) {
-        const stockCritico = stockData.filter(p => {
-            const coincideCritico = parseInt(p.stock) <= 10;
-            const coincideCat = catFiltro === "TODOS" || p.categoria === catFiltro;
+        const stockCritico = datosInventarioReporte.filter(p => {
+            const stockReal = parseInt(p.cantidad) || 0;
+            const categoriaProducto = p.categoria && p.categoria.nombre ? p.categoria.nombre.toUpperCase() : "SIN CATEGORÍA";
+
+            const coincideCritico = stockReal <= 10;
+            const coincideCat = catFiltro === "TODOS" || categoriaProducto === catFiltro;
             const coincideText = p.nombre.toLowerCase().includes(busqueda);
+
             return coincideCritico && coincideCat && coincideText;
         });
 
@@ -141,13 +170,22 @@ function renderizarTablasReporte() {
             tbodyInventario.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:12px;">No hay alertas de stock bajo el umbral.</td></tr>`;
         } else {
             stockCritico.forEach(p => {
-                const esAgotado = parseInt(p.stock) === 0;
+                const stockReal = parseInt(p.cantidad) || 0;
+                const categoriaTexto = p.categoria && p.categoria.nombre ? p.categoria.nombre : "Sin Categoría";
+
+                let badgeClass = "warning";
+                let badgeText = "Bajo Stock";
+                if (stockReal === 0) {
+                    badgeClass = "danger";
+                    badgeText = "Agotado";
+                }
+
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
                     <td><strong>${p.nombre}</strong></td>
-                    <td>${p.categoria}</td>
-                    <td style="font-weight:700;">${p.stock}</td>
-                    <td><span class="badge ${esAgotado ? 'status-baja' : 'status-descanso'}">${esAgotado ? 'Agotado' : 'Bajo Stock'}</span></td>
+                    <td>${categoriaTexto}</td>
+                    <td style="font-weight:700; color: ${stockReal === 0 ? '#dc3545' : 'inherit'};">${stockReal}</td>
+                    <td><span class="badge ${badgeClass}">${badgeText}</span></td>
                 `;
                 tbodyInventario.appendChild(tr);
             });
@@ -157,25 +195,45 @@ function renderizarTablasReporte() {
     }
 
     // ==========================================================================
-    // SECCIÓN 2: CONTROL DE JORNADA LABORAL EN VIVO (CONECTADO AL STORAGE)
+    // SECCIÓN 2: CONTROL DE JORNADA LABORAL REAL DE LA API (EMPLEADOS REALES)
     // ==========================================================================
     tbodyPersonal.innerHTML = "";
 
     if (fechaFiltro === hoyISO) {
-        const personalFiltrado = staffData.filter(e => e.name.toLowerCase().includes(busqueda));
+        const personalFiltrado = datosPersonalReporte.filter(e => {
+            const nombreCompleto = `${e.nombre} ${e.apellido || ""}`.toLowerCase();
+            return nombreCompleto.includes(busqueda);
+        });
 
         if (personalFiltrado.length === 0) {
-            tbodyPersonal.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:12px;">No hay empleados registrados en la plantilla.</td></tr>`;
+            tbodyPersonal.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:12px;">No se encontraron empleados coincidentes.</td></tr>`;
         } else {
             personalFiltrado.forEach(e => {
-                const estadoLimpio = (e.status || "").toUpperCase();
+                const estadoLimpio = (e.status || "ACTIVO").toUpperCase();
                 const estaFichado = estadoLimpio === "TRABAJANDO";
+                const nombreCompleto = `${e.nombre} ${e.apellido || ""}`.trim();
+
+                // Mapeo estilístico idéntico para que coincida con tus clases de css
+                let badgeClass = "status-activo";
+                let badgeText = "Fuera / Descanso";
+
+                if (estaFichado) {
+                    badgeClass = "status-trabajando";
+                    badgeText = "En Turno";
+                } else if (estadoLimpio === "BAJA") {
+                    badgeClass = "status-baja";
+                    badgeText = "Baja / Ausente";
+                } else if (estadoLimpio === "DESCANSO") {
+                    badgeClass = "status-descanso";
+                    badgeText = "Descanso";
+                }
+
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td><strong>${e.name}</strong></td>
+                    <td><strong>${nombreCompleto}</strong></td>
                     <td>${estaFichado ? '16:00' : '—'}</td>
                     <td>—</td>
-                    <td><span class="badge ${estaFichado ? 'status-trabajando' : 'status-activo'}">${estaFichado ? 'En Turno' : 'Fuera / Descanso'}</span></td>
+                    <td><span class="badge ${badgeClass}">${badgeText}</span></td>
                 `;
                 tbodyPersonal.appendChild(tr);
             });
@@ -189,11 +247,8 @@ function construirTimelineAuditoria() {
     timelineContainer.innerHTML = "";
     const eventosLog = [];
     const fechaFiltro = filterDateInput.value;
-
-    const stockData = JSON.parse(localStorage.getItem("crm_inventario")) || [];
     const bookingsData = JSON.parse(localStorage.getItem("crm_reservas")) || [];
 
-    // Filtramos movimientos operativos
     const movimientosReservas = bookingsData.filter(b =>
         b.fecha === fechaFiltro && ((b.estado || "").toUpperCase() === "CANCELADA" || (b.estado || "").toUpperCase() === "SENTADO")
     );
@@ -211,13 +266,17 @@ function construirTimelineAuditoria() {
         });
     });
 
-    // Alertas automáticas de insumos base
-    stockData.filter(p => parseInt(p.stock) <= 5).forEach(p => {
+    datosInventarioReporte.filter(p => (parseInt(p.cantidad) || 0) <= 10).forEach(p => {
+        const stockReal = parseInt(p.cantidad) || 0;
+        const esAgotado = stockReal === 0;
+
         eventosLog.push({
             tipo: "danger",
-            tiempo: "Alerta Crítica",
-            titulo: "Alerta de Stock Crítico",
-            desc: `El artículo "${p.nombre}" requiere reposición urgente (${p.stock} uds).`
+            tiempo: esAgotado ? "Agotado" : "Bajo Stock",
+            titulo: esAgotado ? "Alerta de Rotura de Stock (Crítica)" : "Alerta de Stock Crítico",
+            desc: esAgotado
+                ? `El artículo "${p.nombre}" se encuentra totalmente AGOTADO en la base de datos Java.`
+                : `El artículo "${p.nombre}" requiere reposición urgente (${stockReal} uds restantes en almacén).`
         });
     });
 
@@ -242,84 +301,66 @@ function construirTimelineAuditoria() {
     });
 }
 
-// ==========================================================================
-// SISTEMA DE EXPORTACIÓN REAL (EXCEL CSV Y PDF NATIVO)
-// ==========================================================================
+// EXPORTACIONES
 window.exportarReporte = function (formato) {
-
     const formatoLimpio = (formato || "").toLowerCase();
-    if (formato === 'excel') {
+    if (formatoLimpio === 'excel') {
         showToast("Generando reporte Excel...");
-
-        // 1. Obtener los datos actuales del LocalStorage
-        const stockData = JSON.parse(localStorage.getItem("crm_inventario")) || [];
-        const staffData = JSON.parse(localStorage.getItem("crm_employees")) || [];
         const fechaFiltro = document.getElementById("filter-date-rep")?.value || new Date().toLocaleDateString();
 
-        // 2. Construir el contenido del archivo CSV (Separado por punto y coma para Excel en Español)
-        let csvContent = "\uFEFF"; // BOM para que Excel reconozca los acentos correctamente
-
-        // Bloque 1: Cabecera del Reporte
+        let csvContent = "\uFEFF";
         csvContent += `CRM RESTAURANTE - REPORTE DE OPERACIONES;;;\n`;
         csvContent += `Fecha de Auditoría: ${fechaFiltro};;;\n\n`;
-
-        // Bloque 2: Tabla de Alertas de Stock
-        csvContent += `ALERTAS DE STOCK CRÍTICO;;;\n`;
+        csvContent += `ALERTAS DE INVENTARIO CRÍTICO;;;\n`;
         csvContent += `Artículo;Categoría;Stock Actual;Estado\n`;
 
-        const stockCritico = stockData.filter(p => parseInt(p.stock) <= 10);
+        const stockCritico = datosInventarioReporte.filter(p => (parseInt(p.cantidad) || 0) <= 10);
         if (stockCritico.length === 0) {
             csvContent += `No hay alertas de stock bajo el umbral;;;\n`;
         } else {
             stockCritico.forEach(p => {
-                const estado = parseInt(p.stock) === 0 ? 'Agotado' : 'Bajo Stock';
-                csvContent += `"${p.nombre}";"${p.categoria}";${p.stock};"${estado}"\n`;
+                const stockReal = parseInt(p.cantidad) || 0;
+                const estado = stockReal === 0 ? 'Agotado' : 'Bajo Stock';
+                const categoriaTexto = p.categoria && p.categoria.nombre ? p.categoria.nombre : "Sin Categoría";
+                csvContent += `"${p.nombre}";"${categoriaTexto}";${stockReal};"${estado}"\n`;
             });
         }
 
-        csvContent += `\n\n`; // Separadores visuales
-
-        // Bloque 3: Tabla de Personal en Turno
+        csvContent += `\n\n`;
         csvContent += `CONTROL DE JORNADA LABORAL;;;\n`;
         csvContent += `Empleado;Hora Entrada;Hora Salida;Estado Actual\n`;
 
-        if (staffData.length === 0) {
+        if (datosPersonalReporte.length === 0) {
             csvContent += `No hay empleados registrados;;;\n`;
         } else {
-            staffData.forEach(e => {
+            datosPersonalReporte.forEach(e => {
                 const estaFichado = (e.status || "").toUpperCase() === "TRABAJANDO";
                 const entrada = estaFichado ? "16:00" : "—";
                 const estadoTxt = estaFichado ? "En Turno" : "Fuera / Descanso";
-                csvContent += `"${e.name}";"${entrada}";"—";"${estadoTxt}"\n`;
+                csvContent += `"${e.nombre} ${e.apellido || ""}";"${entrada}";"—";"${estadoTxt}"\n`;
             });
         }
 
-        // 3. Crear el Objeto binario (Blob) y forzar la descarga en el navegador
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-
         link.setAttribute("href", url);
         link.setAttribute("download", `Reporte_CRM_${fechaFiltro}.csv`);
         link.style.visibility = 'hidden';
-
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
         showToast("¡Excel descargado con éxito!");
 
-    } else if (formato === 'pdf') {
+    } else if (formatoLimpio === 'pdf') {
         showToast("Abriendo asistente de impresión PDF...");
-        // Forzamos la ejecución del hilo de impresión nativo del sistema operativo
-        setTimeout(() => {
-            window.print();
-        }, 500);
+        setTimeout(() => { window.print(); }, 500);
     }
 };
 
 function showToast(msj) {
     const container = document.getElementById("toast-container");
+    if (!container) return;
     const toast = document.createElement("div");
     toast.className = "toast";
     toast.innerText = msj;
