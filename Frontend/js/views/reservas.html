@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM - Reservas</title>
+    <title>RestauranteCRM - Gestión de Reservas</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/styles.css">
-    <link rel="stylesheet" href="../../css/crud.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+    <link rel="stylesheet" href="../../css/reservas.css">
 </head>
 <body>
     <div class="app-container">
@@ -17,128 +17,173 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="top-bar-left">
-                    <h2>Gestion de reservas</h2>
+                    <h2>Libro de Reservas</h2>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search-booking" placeholder="Buscar por cliente, mesa o teléfono...">
+                    </div>
                 </div>
                 <div class="top-bar-right">
                     <div class="user-profile">
-                        <div class="user-info">
-                            <span class="user-name">Administrador</span>
-                            <span id="txt-user-role">Sala</span>
-                        </div>
-                        <div class="user-avatar">RS</div>
+                        <span class="user-name">Julio Admin</span>
+                        <span class="user-role-badge">Administrador</span>
+                        <div class="user-avatar">JA</div>
                     </div>
                 </div>
             </header>
 
-            <section class="crud-page">
-                <section class="page-hero">
-                    <span class="page-eyebrow">Reservas</span>
-                    <h1>Editar, borrar y revisar las reservas del dia</h1>
-                    <p>Usa el formulario para crear o actualizar una reserva. La tabla te permite editar, cambiar el estado y borrar cada registro sin salir de la pantalla.</p>
-                    <div class="hero-meta">
-                        <span class="hero-chip" id="reservas-total-chip">0 reservas</span>
-                        <span class="hero-chip" id="reservas-confirmadas-chip">0 confirmadas</span>
-                        <span class="hero-chip" id="reservas-canceladas-chip">0 canceladas</span>
+            <div class="dashboard-body">
+                <div class="welcome-header bookings-header">
+                    <div>
+                        <h1>Planificación de la Sala</h1>
+                        <p>Controla las solicitudes de tus comensales, asignación de mesas y el estado de ocupación del servicio.</p>
+                    </div>
+                </div>
+
+                <section class="kpi-grid bookings-kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-total-res">📅</div>
+                        <div class="kpi-data">
+                            <h3>Reservas Hoy</h3>
+                            <p class="value" id="stat-total-res">0</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-pending-res">⏳</div>
+                        <div class="kpi-data">
+                            <h3>Pendientes</h3>
+                            <p class="value text-pending" id="stat-pending-res">0</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-confirmed-res">🟢</div>
+                        <div class="kpi-data">
+                            <h3>Confirmadas</h3>
+                            <p class="value text-confirmed" id="stat-confirmed-res">0</p>
+                        </div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon icon-tables-occ">🪑</div>
+                        <div class="kpi-data">
+                            <h3>Mesas Libres</h3>
+                            <p class="value text-tables" id="stat-tables-free">0 / 16</p>
+                        </div>
                     </div>
                 </section>
 
-                <div class="panel-grid">
-                    <section class="panel">
-                        <div class="panel-header">
-                            <h2 id="reserva-form-title">Nueva reserva</h2>
-                            <p>Selecciona mesa, turno, cliente y horario para guardar la reserva.</p>
+                <div class="bookings-layout-grid">
+                    <section class="chart-container quick-booking-box">
+                        <div class="chart-header">
+                            <h3 class="title-bold" id="form-action-title">☎️ Tomar Nueva Reserva</h3>
                         </div>
-                        <div class="panel-body">
-                            <div id="reservas-notice" class="notice"></div>
-                            <form id="reserva-form">
-                                <input type="hidden" id="reserva-id">
-                                <div class="form-grid">
-                                    <div class="field">
-                                        <label for="reserva-fecha">Fecha</label>
-                                        <input type="date" id="reserva-fecha" required>
-                                    </div>
-                                    <div class="field">
-                                        <label for="reserva-mesa">Mesa</label>
-                                        <select id="reserva-mesa" required></select>
-                                    </div>
-                                    <div class="field">
-                                        <label for="reserva-turno">Turno</label>
-                                        <select id="reserva-turno" required></select>
-                                    </div>
-                                    <div class="field">
-                                        <label for="reserva-personas">Personas</label>
-                                        <input type="number" id="reserva-personas" min="1" step="1" required>
-                                    </div>
-                                    <div class="field">
-                                        <label for="reserva-hora-inicio">Hora inicio</label>
-                                        <input type="time" id="reserva-hora-inicio" required>
-                                    </div>
-                                    <div class="field">
-                                        <label for="reserva-hora-fin">Hora fin</label>
-                                        <input type="time" id="reserva-hora-fin" required>
-                                    </div>
-                                    <div class="field span-2">
-                                        <label for="reserva-cliente">Nombre del cliente</label>
-                                        <input type="text" id="reserva-cliente" placeholder="Familia Garcia" required>
-                                    </div>
-                                    <div class="field">
-                                        <label for="reserva-telefono">Telefono</label>
-                                        <input type="text" id="reserva-telefono" placeholder="600123456">
-                                    </div>
-                                    <div class="field">
-                                        <label for="reserva-observaciones">Observaciones</label>
-                                        <input type="text" id="reserva-observaciones" placeholder="Alergia, trona, celebracion...">
-                                    </div>
+                        <form id="form-reserva" class="premium-form">
+                            <input type="hidden" id="res-id">
+                            <div class="form-group">
+                                <label for="res-nombre">Nombre del cliente</label>
+                                <input type="text" id="res-nombre" placeholder="Ej: Familia García" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="res-telefono">Teléfono de contacto</label>
+                                <input type="tel" id="res-telefono" placeholder="Ej: 600123456" required>
+                            </div>
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="res-pax">Comensales (Pax)</label>
+                                    <input type="number" id="res-pax" min="1" max="20" placeholder="4" required>
                                 </div>
-                                <div class="form-actions">
-                                    <button type="submit" class="btn-primary" id="reserva-submit">Guardar reserva</button>
-                                    <button type="button" class="btn-secondary" id="reserva-cancel" hidden>Cancelar edicion</button>
+                                <div class="form-group">
+                                    <label for="res-hora">Turno del servicio</label>
+                                    <select id="res-hora" required>
+                                        <option value="">Cargando turnos...</option>
+                                    </select>
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+                            <div class="form-grid-2col">
+                                <div class="form-group">
+                                    <label for="res-date">Fecha</label>
+                                    <input type="date" id="res-date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="res-mesa">Mesa / ID asignado</label>
+                                    <select id="res-mesa" required>
+                                        <option value="">Selecciona mesa...</option>
+                                        </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="res-notas">Observaciones y Alergias</label>
+                                <input type="text" id="res-notas" placeholder="Ej: Requiere trona, intolerancia al gluten...">
+                            </div>
+                            <button type="submit" class="btn-submit-booking" id="btn-submit-text">Guardar Reserva</button>
+                            <button type="button" class="btn-cancel-edit" id="btn-cancel-edit" style="display: none;">Cancelar Edición</button>
+                        </form>
                     </section>
 
-                    <section class="panel">
-                        <div class="panel-header">
-                            <div>
-                                <h2>Reservas registradas</h2>
-                                <p>Filtra por fecha o texto y usa las acciones para editar, cancelar o borrar.</p>
-                            </div>
-                            <div class="filters">
-                                <input type="date" id="reserva-filter-date" class="filter-input">
-                                <input type="text" id="reserva-search" class="filter-input" placeholder="Buscar reserva">
+                    <section class="chart-container map-booking-box">
+                        <div class="chart-header">
+                            <h3 class="title-bold">Estado Visual de las Mesas</h3>
+                            <div class="map-legends">
+                                <span class="legend-dot free"></span> Libre
+                                <span class="legend-dot reserved"></span> Reservada
+                                <span class="legend-dot seated"></span> Sentados
                             </div>
                         </div>
-                        <div class="panel-body">
-                            <div class="summary-row" id="reservas-summary"></div>
-                            <div class="table-container">
-                                <table class="crm-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Fecha</th>
-                                            <th>Hora</th>
-                                            <th>Cliente</th>
-                                            <th>Mesa</th>
-                                            <th>Pax</th>
-                                            <th>Turno</th>
-                                            <th>Estado</th>
-                                            <th>Contacto</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="reservas-table-body"></tbody>
-                                </table>
-                            </div>
+                        
+                        <div class="zone-wrapper" id="dynamic-zones-container">
+                            <h4 class="zone-title">Zona Interior</h4>
+                            <div class="grid-tables-map" id="map-interior"></div>
+                            
+                            <h4 class="zone-title" style="margin-top: 24px;">Zona Terraza</h4>
+                            <div class="grid-tables-map" id="map-terraza"></div>
                         </div>
                     </section>
                 </div>
-            </section>
+
+                <div class="chart-container large bookings-table-container">
+                    <div class="chart-header bookings-chart-header">
+                        <h3 class="title-bold">Libro de Registro General</h3>
+                            <div class="filters-group">
+                                <input type="date" id="filter-date" class="select-filter" title="Filtrar por fecha">
+                                
+                                <select id="filter-status" class="select-filter">
+                                    <option value="TODOS">Todos los Estados</option>
+                                    <option value="PENDIENTE">Pendiente</option>
+                                    <option value="CONFIRMADA">Confirmada</option>
+                                    <option value="SENTADO">Cliente Sentado</option>
+                                    <option value="FINALIZADA">Finalizada</option>
+                                    <option value="CANCELADA">Cancelada</option>
+                                </select>
+                            </div>
+                    </div>
+
+                    <div class="table-responsive-wrapper">
+                        <table class="architecture-table">
+                            <thead>
+                                <tr>
+                                    <th>Hora</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Pax</th>
+                                    <th>Mesa / Área</th>
+                                    <th>Observaciones</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reservas-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
+    <div id="toast-container" class="toast-container"></div>
+
     <script src="../auth.js"></script>
     <script src="../main.js"></script>
-    <script src="../api.js"></script>
+    <script src="../config.js"></script>
     <script src="../modules/reservas.js"></script>
 </body>
 </html>
