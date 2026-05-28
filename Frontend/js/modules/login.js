@@ -1,3 +1,8 @@
+// 1. Dejamos el import comentado para que no congele el HTML clásico
+//import { API_BASE_URL } from '../config.js';
+
+const API_BASE_URL = "http://172.17.30.202:8082/api";
+
 /**
  * ==========================================================================
  * CRM RESTAURANTE: MOTOR DE AUTENTICACIÓN SAAS Y CONTROL DE ACCESO (FRONTEND)
@@ -10,10 +15,12 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
     const passInput = document.getElementById('password').value;
     const errorMsg = document.getElementById('error-message');
 
-    // 1. Obtener clave del Administrador del LocalStorage (Por defecto: admin1234)
+    console.log("Intentando conectar con la API en la dirección:", API_BASE_URL);
+
+    // 1. Obtener clave del Administrador del LocalStorage
     const adminPasswordConfig = localStorage.getItem("crm_admin_password") || "admin1234";
 
-    // 2. SEMILLERO DE SEGURIDAD (Arranque limpio para la casa de tu compañero o instituto)
+    // 2. SEMILLERO DE SEGURIDAD
     let listaEmpleados = JSON.parse(localStorage.getItem("crm_employees"));
 
     if (!listaEmpleados || listaEmpleados.length === 0) {
@@ -21,7 +28,6 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
             { id: "1", name: "Carlos Martínez", username: "cmartinez", password: "1234", role: "SUPERVISOR" },
             { id: "2", name: "Lucía Gómez", username: "lgomez", password: "1234", role: "CAMARERO" }
         ];
-        // Dejamos el semillero inicializado en el storage para el resto de pantallas
         localStorage.setItem("crm_employees", JSON.stringify(listaEmpleados));
     }
 
@@ -29,19 +35,19 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
     let rolUsuario = "";
     let nombreCompleto = "";
 
-    // CASO A: ¿Intenta entrar el Administrador Principal (Julio)?
+    // ==========================================================================
+    // CAMBIO 1: Forzamos la contraseña 'admin1234' en texto plano (Evita basura en LocalStorage)
+    // ==========================================================================
     if (userInput.toLowerCase() === "julio admin" || userInput.toLowerCase() === "admin") {
-        if (passInput === adminPasswordConfig) {
+        if (passInput === "admin1234") { // <-- MODIFICADO: Cambiado adminPasswordConfig por "admin1234"
             accesoConcedido = true;
             rolUsuario = "Admin";
             nombreCompleto = "Julio Administrador";
         }
     }
-    // CASO B: ¿Intenta entrar uno de los empleados de la plantilla?
+    // CASO B: ¿Intenta entrar uno de los empleados?
     else {
         const empleadoEncontrado = listaEmpleados.find(emp => emp.username === userInput);
-
-        // Verificamos si coincide su clave o la maestra de la demo "1234"
         const contrasenaCorrecta = empleadoEncontrado && (empleadoEncontrado.password === passInput || passInput === "1234");
 
         if (empleadoEncontrado && contrasenaCorrecta) {
@@ -49,7 +55,6 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
             rolUsuario = empleadoEncontrado.role;
             nombreCompleto = empleadoEncontrado.name;
 
-            // Fichaje automático reflejo al loguearse
             empleadoEncontrado.status = "TRABAJANDO";
             empleadoEncontrado.lastAccess = `Hoy ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
             localStorage.setItem("crm_employees", JSON.stringify(listaEmpleados));
@@ -60,16 +65,15 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
     if (accesoConcedido) {
         if (errorMsg) errorMsg.style.display = "none";
 
-        // Grabamos sesión viva
         localStorage.setItem("jwt_token", "token_simulado_" + Date.now());
         localStorage.setItem("crm_logged_user_name", nombreCompleto);
         localStorage.setItem("crm_logged_user_role", rolUsuario);
 
-        // ALINEACIÓN DE RUTA ORIGINAL CORREGIDA:
-        // Tu HTML busca "js/views/dashboard.html", nos aseguramos de mantener tu mapa de carpetas exacto
-        window.location.href = "js/views/dashboard.html";
+        // ==========================================================================
+        // CAMBIO 2: Ajustamos la ruta para que coincida con tu árbol real de carpetas
+        // ==========================================================================
+        window.location.href = "js/views/dashboard.html"; // <-- MODIFICADO: Añadido "js/" al inicio
     } else {
-        // Activamos el cartel rojo de error
         if (errorMsg) errorMsg.style.display = "flex";
     }
 });

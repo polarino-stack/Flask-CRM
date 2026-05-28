@@ -92,8 +92,10 @@
                                     <input type="number" id="res-pax" min="1" max="20" placeholder="4" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="res-hora">Hora del servicio</label>
-                                    <input type="time" id="res-hora" required>
+                                    <label for="res-hora">Turno del servicio</label>
+                                    <select id="res-hora" required>
+                                        <option value="">Cargando turnos...</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-grid-2col">
@@ -181,6 +183,7 @@
 
     <script src="../auth.js"></script>
     <script src="../main.js"></script>
+    <script src="../config.js"></script>
     <script src="../modules/reservas.js"></script>
 </body>
 </html>
