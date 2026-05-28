@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestauranteCRM - Inventario e Stock</title>
+    <title>CRM - Productos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/dashboard.css">
-    <link rel="stylesheet" href="../../css/productos.css">
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="stylesheet" href="../../css/crud.css">
 </head>
 <body>
     <div class="app-container">
@@ -17,126 +17,111 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="top-bar-left">
-                    <h2>Módulo de Inventario</h2>
-                    <div class="search-box">
-                        <span class="search-icon"></span>
-                        <input type="text" id="product-search" placeholder="Buscar por producto o categoría...">
-                    </div>
+                    <h2>Gestion de stock</h2>
                 </div>
                 <div class="top-bar-right">
                     <div class="user-profile">
-                        <span class="user-name">Julio Admin</span>
-                        <div class="user-avatar">JA</div>
+                        <div class="user-info">
+                            <span class="user-name">Administrador</span>
+                            <span id="txt-user-role">Inventario</span>
+                        </div>
+                        <div class="user-avatar">ST</div>
                     </div>
                 </div>
             </header>
 
-            <div class="dashboard-body">
-                <div class="welcome-header inventory-header">
-                    <div>
-                        <h1>Control de Stock</h1>
-                        <p>Visualiza, edita existencias y simula ventas directas.</p>
-                    </div>
-                    <button class="btn-login btn-add-product" id="btn-open-modal">+ Agregar Producto</button>
-                </div>
-
-                <section class="kpi-grid inventory-kpi-margin">
-                    <div class="kpi-card">
-                        <div class="kpi-icon icon-stock"></div>
-                        <div class="kpi-data">
-                            <h3>Total Unidades</h3>
-                            <p class="value" id="stat-total-stock">0</p>
-                        </div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon kpi-icon-warning">
-                            <span class="nav-icon icon-prod badge-icon-warning"></span>
-                        </div>
-                        <div class="kpi-data">
-                            <h3>Poco Stock</h3>
-                            <p class="value text-warning-kpi" id="stat-low-stock">0</p>
-                        </div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon kpi-icon-danger">
-                            <span class="nav-icon icon-exit badge-icon-danger"></span>
-                        </div>
-                        <div class="kpi-data">
-                            <h3>Productos Agotados</h3>
-                            <p class="value text-danger-kpi" id="stat-out-stock">0</p>
-                        </div>
+            <section class="crud-page">
+                <section class="page-hero">
+                    <span class="page-eyebrow">Stock</span>
+                    <h1>Editar y borrar productos del almacen</h1>
+                    <p>Los productos se guardan por categoria. Si escribes una categoria nueva, la API la crea automaticamente durante el guardado.</p>
+                    <div class="hero-meta">
+                        <span class="hero-chip" id="productos-total-chip">0 productos</span>
+                        <span class="hero-chip" id="productos-alerta-chip">0 bajo minimo</span>
                     </div>
                 </section>
 
-                <div class="chart-container large inventory-container">
-                    <div class="chart-header inventory-chart-header">
-                        <h3 class="title-bold">Catálogo de Existencias</h3>
-                        <select id="category-filter">
-                            <option value="TODOS">Todas las Categorías</option>
-                        </select>
-                    </div>
+                <div class="panel-grid">
+                    <section class="panel">
+                        <div class="panel-header">
+                            <h2 id="producto-form-title">Nuevo producto</h2>
+                            <p>Rellena el formulario para crear o actualizar un producto de stock.</p>
+                        </div>
+                        <div class="panel-body">
+                            <div id="productos-notice" class="notice"></div>
+                            <form id="producto-form">
+                                <input type="hidden" id="producto-id">
+                                <div class="form-grid">
+                                    <div class="field span-2">
+                                        <label for="producto-categoria">Categoria</label>
+                                        <input type="text" id="producto-categoria" list="categorias-list" placeholder="Bebidas" required>
+                                        <datalist id="categorias-list"></datalist>
+                                    </div>
+                                    <div class="field span-2">
+                                        <label for="producto-nombre">Nombre</label>
+                                        <input type="text" id="producto-nombre" placeholder="Coca Cola" required>
+                                    </div>
+                                    <div class="field">
+                                        <label for="producto-cantidad">Cantidad</label>
+                                        <input type="number" id="producto-cantidad" min="0" step="1" required>
+                                    </div>
+                                    <div class="field">
+                                        <label for="producto-stock-minimo">Stock minimo</label>
+                                        <input type="number" id="producto-stock-minimo" min="0" step="1">
+                                    </div>
+                                    <div class="field">
+                                        <label for="producto-unidad">Unidad de medida</label>
+                                        <input type="text" id="producto-unidad" placeholder="unidades" value="unidades">
+                                    </div>
+                                    <div class="field">
+                                        <label for="producto-telefono">Telefono proveedor</label>
+                                        <input type="text" id="producto-telefono" placeholder="910111001">
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary" id="producto-submit">Guardar producto</button>
+                                    <button type="button" class="btn-secondary" id="producto-cancel" hidden>Cancelar edicion</button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
 
-                    <div class="table-responsive-wrapper">
-                        <table class="inventory-table">
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Categoría</th>
-                                    <th>Precio Compra</th>
-                                    <th>Stock Actual</th>
-                                    <th>Estado</th>
-                                    <th>Acciones / Venta</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventory-tbody"></tbody>
-                        </table>
-                    </div>
+                    <section class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2>Productos guardados</h2>
+                                <p>Busca por categoria, nombre o proveedor antes de editar un registro.</p>
+                            </div>
+                            <input type="text" id="producto-search" class="filter-input" placeholder="Buscar producto">
+                        </div>
+                        <div class="panel-body">
+                            <div class="summary-row" id="productos-summary"></div>
+                            <div class="table-container">
+                                <table class="crm-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Categoria</th>
+                                            <th>Producto</th>
+                                            <th>Cantidad</th>
+                                            <th>Minimo</th>
+                                            <th>Unidad</th>
+                                            <th>Proveedor</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="productos-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-            </div>
+            </section>
         </main>
     </div>
 
-    <div id="product-modal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h2 id="modal-title">Agregar Nuevo Producto</h2>
-                <button id="btn-close-modal" class="modal-close-btn">&times;</button>
-            </div>
-            <form id="form-product">
-                <input type="hidden" id="product-id">
-                <div class="input-group">
-                    <label for="prod-name">Nombre del Producto</label>
-                    <div class="input-wrapper input-modal-wrapper">
-                        <input type="text" id="prod-name" placeholder="Ej: Coca Cola" required class="input-modal-padding">
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="prod-category">Categoría</label>
-                    <select id="prod-category" required class="select-modal-custom">
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="prod-price">Precio Compra por Unidad (€)</label>
-                    <div class="input-wrapper input-modal-wrapper">
-                        <input type="number" id="prod-price" step="0.01" min="0" placeholder="0.00" required class="input-modal-padding">
-                    </div>
-                </div>
-                <div class="input-group">
-                    <label for="prod-stock">Cantidad de Stock Inicial</label>
-                    <div class="input-wrapper input-modal-wrapper">
-                        <input type="number" id="prod-stock" min="0" placeholder="0" required class="input-modal-padding">
-                    </div>
-                </div>
-                <button type="submit" class="btn-login" style="margin-top: 12px;">Guardar Cambios</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="toast-container" class="toast-container"></div>
-
     <script src="../auth.js"></script>
     <script src="../main.js"></script>
-    <script src="../config.js"></script>
+    <script src="../api.js"></script>
     <script src="../modules/productos.js"></script>
 </body>
 </html>

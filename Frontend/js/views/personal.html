@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RestauranteCRM - Gestión de Personal</title>
+    <title>CRM - Personal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../../css/dashboard.css">
-    <link rel="stylesheet" href="../../css/personal.css">
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="stylesheet" href="../../css/crud.css">
 </head>
 <body>
     <div class="app-container">
@@ -17,185 +17,108 @@
         <main class="main-content">
             <header class="top-bar">
                 <div class="top-bar-left">
-                    <h2>Módulo de Personal</h2>
-                    <div class="search-box">
-                        <span class="search-icon">🔍</span>
-                        <input type="text" id="search-employee" placeholder="Buscar por nombre, email o puesto...">
-                    </div>
+                    <h2>Gestion de personal</h2>
                 </div>
                 <div class="top-bar-right">
                     <div class="user-profile">
-                        <span class="user-name">Julio Admin</span>
-                        <span class="user-role-badge" id="txt-user-role">Administrador</span>
-                        <div class="user-avatar">JA</div>
+                        <div class="user-info">
+                            <span class="user-name">Administrador</span>
+                            <span id="txt-user-role">Panel CRUD</span>
+                        </div>
+                        <div class="user-avatar">AP</div>
                     </div>
                 </div>
             </header>
 
-            <div class="dashboard-body">
-                <div class="welcome-header personal-header">
-                    <div>
-                        <h1>Gestión de Equipos</h1>
-                        <p>Controla las fichas de empleados, asignación de roles, turnos y el registro de asistencia en tiempo real.</p>
-                    </div>
-                    <button class="btn-login btn-add-employee" id="btn-open-modal">+ Nuevo Empleado</button>
-                </div>
-
-                <section class="kpi-grid personal-kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-icon icon-total">👥</div>
-                        <div class="kpi-data">
-                            <h3>Total Personal</h3>
-                            <p class="value" id="stat-total">0</p>
-                        </div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon icon-working">⚡</div>
-                        <div class="kpi-data">
-                            <h3>Trabajando Ahora</h3>
-                            <p class="value value-working" id="stat-working">0</p>
-                        </div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon icon-active">🟢</div>
-                        <div class="kpi-data">
-                            <h3>Estado Activo</h3>
-                            <p class="value value-active" id="stat-active">0</p>
-                        </div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon icon-absent">🔴</div>
-                        <div class="kpi-data">
-                            <h3>Bajas / Ausentes</h3>
-                            <p class="value value-absent" id="stat-absent">0</p>
-                        </div>
+            <section class="crud-page">
+                <section class="page-hero">
+                    <span class="page-eyebrow">Personal</span>
+                    <h1>Alta, edicion y borrado de empleados</h1>
+                    <p>Gestiona el equipo desde una unica pantalla. Puedes crear un empleado, editar sus datos o eliminarlo directamente desde la tabla.</p>
+                    <div class="hero-meta">
+                        <span class="hero-chip" id="personal-total-chip">0 empleados</span>
+                        <span class="hero-chip" id="personal-hours-chip">0 horas semanales</span>
                     </div>
                 </section>
 
-                <div class="chart-container large personal-container">
-                    <div class="chart-header personal-chart-header">
-                        <h3 class="title-bold">Plantilla de Empleados</h3>
-                        <div class="filters-group">
-                            <select id="filter-role" class="select-filter">
-                                <option value="TODOS">Todos los Roles</option>
-                                <option value="ADMINISTRADOR">Administrador</option>
-                                <option value="CAMARERO">Camarero</option>
-                                <option value="COCINA">Cocina</option>
-                                <option value="RECEPCIÓN">Recepción</option>
-                                <option value="SUPERVISOR">Supervisor</option>
-                            </select>
-                            <select id="filter-status" class="select-filter">
-                                <option value="TODOS">Todos los Estados</option>
-                                <option value="ACTIVO">Activo</option>
-                                <option value="TRABAJANDO">Trabajando</option>
-                                <option value="DESCANSO">Descanso</option>
-                                <option value="BAJA">Baja / Ausente</option>
-                            </select>
+                <div class="panel-grid">
+                    <section class="panel">
+                        <div class="panel-header">
+                            <h2 id="empleado-form-title">Nuevo empleado</h2>
+                            <p>Completa el formulario y guarda el registro en la API.</p>
                         </div>
-                    </div>
+                        <div class="panel-body">
+                            <div id="personal-notice" class="notice"></div>
+                            <form id="empleado-form">
+                                <input type="hidden" id="empleado-id">
+                                <div class="form-grid">
+                                    <div class="field">
+                                        <label for="empleado-nombre">Nombre</label>
+                                        <input type="text" id="empleado-nombre" placeholder="Ana" required>
+                                    </div>
+                                    <div class="field">
+                                        <label for="empleado-apellido">Apellido</label>
+                                        <input type="text" id="empleado-apellido" placeholder="Garcia" required>
+                                    </div>
+                                    <div class="field">
+                                        <label for="empleado-dni">DNI</label>
+                                        <input type="text" id="empleado-dni" placeholder="12345678A" required>
+                                    </div>
+                                    <div class="field">
+                                        <label for="empleado-telefono">Telefono</label>
+                                        <input type="text" id="empleado-telefono" placeholder="600111222">
+                                    </div>
+                                    <div class="field">
+                                        <label for="empleado-horas-semanales">Horas semanales</label>
+                                        <input type="number" id="empleado-horas-semanales" min="0" step="1" required>
+                                    </div>
+                                    <div class="field">
+                                        <label for="empleado-horas-mensuales">Horas mensuales</label>
+                                        <input type="number" id="empleado-horas-mensuales" min="0" step="1" required>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary" id="empleado-submit">Guardar empleado</button>
+                                    <button type="button" class="btn-secondary" id="empleado-cancel" hidden>Cancelar edicion</button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
 
-                    <div class="table-responsive-wrapper">
-                        <table class="crm-table architecture-table">
-                            <thead>
-                                <tr>
-                                    <th>Empleado</th>
-                                    <th>Puesto / Rol</th>
-                                    <th>Turno / Horario</th>
-                                    <th>Ingreso</th>
-                                    <th>Estado Laboral</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="personal-table-body"></tbody>
-                        </table>
-                    </div>
+                    <section class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2>Empleados guardados</h2>
+                                <p>Filtra por nombre o DNI y usa las acciones para editar o borrar.</p>
+                            </div>
+                            <input type="text" id="personal-search" class="filter-input" placeholder="Buscar empleado">
+                        </div>
+                        <div class="panel-body">
+                            <div class="summary-row" id="personal-summary"></div>
+                            <div class="table-container">
+                                <table class="crm-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Empleado</th>
+                                            <th>DNI</th>
+                                            <th>Contacto</th>
+                                            <th>Horas</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="personal-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-            </div>
+            </section>
         </main>
     </div>
 
-    <div id="employee-modal" class="modal-overlay">
-        <div class="modal-box personal-modal-box">
-            <div class="modal-header">
-                <h2 id="modal-title">Registrar Nuevo Empleado</h2>
-                <button id="btn-close-modal" class="modal-close-btn">&times;</button>
-            </div>
-            <form id="form-employee">
-                <input type="hidden" id="employee-id">
-                
-                <div class="form-grid">
-                    <div class="input-group">
-                        <label for="emp-name">Nombre Completo</label>
-                        <input type="text" id="emp-name" placeholder="Ej: Carlos Martínez" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="emp-email">Correo Electrónico</label>
-                        <input type="email" id="emp-email" placeholder="carlos@crm.com" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="emp-phone">Teléfono de Contacto</label>
-                        <input type="tel" id="emp-phone" placeholder="Ej: 600123456" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="emp-role">Puesto / Rol asignado</label>
-                        <select id="emp-role" required>
-                            <option value="ADMINISTRADOR">Administrador</option>
-                            <option value="CAMARERO">Camarero</option>
-                            <option value="COCINA">Cocina</option>
-                            <option value="RECEPCIÓN">Recepción</option>
-                            <option value="SUPERVISOR">Supervisor</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label for="emp-shift">Turno asignado</label>
-                        <select id="emp-shift" required>
-                            <option value="Completo (Partido)">Completo (Partido)</option>
-                            <option value="Mañana">Mañana</option>
-                            <option value="Tarde">Tarde</option>
-                            <option value="Noche">Noche</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label for="emp-schedule">Horario Detallado</label>
-                        <input type="text" id="emp-schedule" placeholder="Ej: 09:00 - 17:00" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="emp-date">Fecha de Ingreso</label>
-                        <input type="date" id="emp-date" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="emp-status">Estado de Alta Inicial</label>
-                        <select id="emp-status" required>
-                            <option value="ACTIVO">Activo</option>
-                            <option value="TRABAJANDO">Trabajando</option>
-                            <option value="DESCANSO">Descanso</option>
-                            <option value="BAJA">Baja / Ausente</option>
-                        </select>
-                    </div>
-                    <div class="input-group full-width-field">
-                        <label for="emp-avatar">URL de la Foto de Perfil (Opcional)</label>
-                        <input type="url" id="emp-avatar" placeholder="https://images.unsplash.com/... o dejar vacío">
-                    </div>
-                    <div class="input-group">
-                        <label for="emp-username">Nombre de Usuario (Login)</label>
-                        <input type="text" id="emp-username" placeholder="Ej: cmartinez" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="emp-password">Contraseña de Acceso</label>
-                        <input type="password" id="emp-password" placeholder="••••••••" required>
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn-submit-form">Guardar Ficha de Empleado</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="toast-container" class="toast-container"></div>
-
     <script src="../auth.js"></script>
     <script src="../main.js"></script>
-    <script src="../config.js"></script>
+    <script src="../api.js"></script>
     <script src="../modules/personal.js"></script>
 </body>
 </html>

@@ -1,360 +1,227 @@
-// ==========================================================================
-// CRM RESTAURANTE: CAPA DE CONEXIÓN CON SPRING BOOT (MÓDULO PRODUCTOS)
-// ==========================================================================
-// Mapeo clásico: la variable API_BASE_URL viene cargada globalmente desde config.js
-
-let inventario = [];
-let listaCategoriasVivas = []; // Buffer para guardar las categorías reales de la API
-
 document.addEventListener("DOMContentLoaded", () => {
-    // Inicialización del catálogo asíncrono
-    cargarInventarioDesdeAPI();
+    const api = window.crmApi;
+    const { escapeHtml } = window.crmUtils;
 
-    document.getElementById('btn-open-modal').addEventListener('click', () => abrirModal());
-    document.getElementById('btn-close-modal').addEventListener('click', cerrarModal);
-    document.getElementById('form-product').addEventListener('submit', guardarProducto);
-
-    document.getElementById('product-search').addEventListener('input', filtrarInventario);
-    document.getElementById('category-filter').addEventListener('change', filtrarInventario);
-});
-
-// ==========================================================================
-// 1. OPERACIÓN READ (GET): Traer productos y categorías en vivo
-// ==========================================================================
-async function cargarInventarioDesdeAPI() {
-    try {
-        console.log("Conectando con el endpoint de productos en:", `${API_BASE_URL}/stock`);
-        const response = await fetch(`${API_BASE_URL}/stock`);
-
-        if (!response.ok) throw new Error(`Fallo en servidor Java: ${response.status}`);
-        inventario = await response.json();
-
-        // Llamamos a la API de categorías para renderizar los selectores dinámicos
-        await cargarCategoriasDesdeAPI();
-
-        // Sincronizamos la interfaz de usuario con los datos reales
-        renderizarTabla(inventario);
-        actualizarTarjetasEstadisticas(inventario);
-
-    } catch (error) {
-        console.error("🔴 Error al conectar con Spring Boot:", error);
-        showToast("Error de conexión con la base de datos.");
-    }
-}
-
-<<<<<<< Updated upstream
-async function cargarCategoriasDesdeAPI() {
-    try {
-        console.log("Conectando con el endpoint de categorías en:", `${API_BASE_URL}/stock/categorias`);
-        const response = await fetch(`${API_BASE_URL}/stock/categorias`);
-
-        if (!response.ok) throw new Error();
-        const dataCategorias = await response.json();
-
-        // Extraemos los nombres de las categorías del JSON de tu amigo ("Bebida", etc.)
-        listaCategoriasVivas = Object.keys(dataCategorias);
-
-        // Poblamos los dropdowns automáticamente
-        poblarFiltrosDeCategorias();
-    } catch (error) {
-        console.error("🔴 Error al recuperar las categorías de la API:", error);
-    }
-}
-
-function poblarFiltrosDeCategorias() {
-    const filterSelect = document.getElementById("category-filter");
-    const modalSelect = document.getElementById("prod-category");
-
-    // 1. Poblamos el filtro del catálogo general
-    if (filterSelect) {
-        filterSelect.innerHTML = '<option value="TODOS">Todas las Categorías</option>';
-        listaCategoriasVivas.forEach(cat => {
-            const opt = document.createElement("option");
-            opt.value = cat.toUpperCase();
-            opt.innerText = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
-            filterSelect.appendChild(opt);
-        });
-    }
-
-    // 2. Poblamos el desplegable del formulario de agregar productos
-    if (modalSelect) {
-        modalSelect.innerHTML = '';
-        listaCategoriasVivas.forEach(cat => {
-            const opt = document.createElement("option");
-            opt.value = cat.toUpperCase();
-            opt.innerText = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
-            modalSelect.appendChild(opt);
-        });
-    }
-}
-
-function actualizarTarjetasEstadisticas(inventarioVivo) {
-=======
-function actualizarTarjetasEstadisticas() {
-    // 1. REFRESH: Forzamos a la función a leer los datos más nuevos del almacén
-    const inventarioVivo = JSON.parse(localStorage.getItem("crm_inventario")) || [];
-
->>>>>>> Stashed changes
-    let totalUnidades = 0;
-    let pocoStock = 0;
-    let agotados = 0;
-
-<<<<<<< Updated upstream
-    inventarioVivo.forEach(p => {
-        const stockActual = parseInt(p.cantidad) || 0;
-=======
-    // 2. Recorremos el buffer vivo del LocalStorage
-    inventarioVivo.forEach(p => {
-        const stockActual = parseInt(p.stock) || 0;
-
->>>>>>> Stashed changes
-        totalUnidades += stockActual;
-
-        if (stockActual === 0) {
-            agotados++;
-        } else if (stockActual <= 10) {
-<<<<<<< Updated upstream
-            pocoStock++;
-        }
-    });
-
-    if (document.getElementById('stat-total-stock')) document.getElementById('stat-total-stock').innerText = totalUnidades;
-    if (document.getElementById('stat-low-stock')) document.getElementById('stat-low-stock').innerText = pocoStock;
-    if (document.getElementById('stat-out-stock')) document.getElementById('stat-out-stock').innerText = agotados;
-=======
-            pocoStock++; // Cuenta +1 por cada producto diferente que esté entre 1 y 10 unidades
-        }
-    });
-
-    // 3. Inyectamos los contadores puros en los ganchos del DOM
-    if (document.getElementById('stat-total-stock')) {
-        document.getElementById('stat-total-stock').innerText = totalUnidades;
-    }
-    if (document.getElementById('stat-low-stock')) {
-        document.getElementById('stat-low-stock').innerText = pocoStock;
-    }
-    if (document.getElementById('stat-out-stock')) {
-        document.getElementById('stat-out-stock').innerText = agotados;
-    }
->>>>>>> Stashed changes
-}
-
-function renderizarTabla(listaFiltrada = inventario) {
-    const tbody = document.getElementById('inventory-tbody');
-    tbody.innerHTML = "";
-
-    if (listaFiltrada.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No se encontraron productos.</td></tr>`;
-        return;
-    }
-
-    listaFiltrada.forEach(p => {
-        const stockReal = parseInt(p.cantidad) || 0;
-        const categoriaReal = p.categoria && p.categoria.nombre ? p.categoria.nombre.toUpperCase() : "SIN CATEGORÍA";
-        const precioReal = p.precio ? parseFloat(p.precio) : 1.50;
-
-        let badgeClass = "success";
-        let badgeText = "Correcto";
-
-        if (stockReal === 0) {
-            badgeClass = "danger";
-            badgeText = "Agotado";
-        } else if (stockReal <= 40) {
-            badgeClass = "warning";
-            badgeText = "Bajo Stock";
-        }
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td style="font-weight:600;">${p.nombre}</td>
-            <td style="color:var(--text-muted); font-size:13px;">${categoriaReal}</td>
-            <td>${precioReal.toFixed(2)} €</td>
-            <td style="font-weight:700;">${stockReal}</td>
-            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
-            <td>
-                <button class="action-btn sell" onclick="registrarVentaDirecta(${p.id})">Vender 1</button>
-                <button class="action-btn edit" onclick="abrirModal(${p.id})">Editar</button>
-                <button class="action-btn delete" onclick="eliminarProducto(${p.id})">Eliminar</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-function filtrarInventario() {
-    const busqueda = document.getElementById('product-search').value.toLowerCase();
-    const categoriaFiltro = document.getElementById('category-filter').value;
-
-    const resultado = inventario.filter(p => {
-        const categoriaProducto = p.categoria && p.categoria.nombre ? p.categoria.nombre.toUpperCase() : "";
-        const coincideNombre = p.nombre.toLowerCase().includes(busqueda) || categoriaProducto.toLowerCase().includes(busqueda);
-        const coincideCategoria = (categoriaFiltro === "TODOS" || categoriaProducto === categoriaFiltro);
-        return coincideNombre && coincideCategoria;
-    });
-
-    renderizarTabla(resultado);
-}
-
-// ==========================================================================
-// 2. TRANSACTORES EN VIVO (PUT): Venta Directa y descuento de Stock
-// ==========================================================================
-window.registrarVentaDirecta = async function (id) {
-    const producto = inventario.find(p => p.id === id);
-    if (!producto) return;
-
-    const stockReal = parseInt(producto.cantidad) || 0;
-
-    if (stockReal > 0) {
-        try {
-            const nuevoStock = stockReal - 1;
-            const response = await fetch(`${API_BASE_URL}/stock/productos/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...producto,
-                    cantidad: nuevoStock
-                })
-            });
-
-<<<<<<< Updated upstream
-            if (!response.ok) throw new Error();
-            showToast(`Venta registrada: 1 unidad de ${producto.nombre} descontada.`);
-            await cargarInventarioDesdeAPI();
-
-        } catch (error) {
-            console.error(error);
-            showToast("Fallo al registrar la transacción.");
-        }
-=======
-        // ==========================================================================
-        // GUARDAR LA VENTA DIRECTA POR CATEGORÍA
-        // ==========================================================================
-        let historialCategorias = JSON.parse(localStorage.getItem("crm_ventas_categorias")) || {
-            'BEBIDAS': 0, 'BEBIDAS ALCOHÓLICAS': 0, 'EMBUTIDOS': 0, 'CONDIMENTOS': 0, 'FRUTAS Y VEGETALES': 0
-        };
-
-        // Sumamos una unidad a la categoría de este producto de forma estricta
-        const catUpper = producto.categoria.toUpperCase();
-        if (historialCategorias[catUpper] !== undefined) {
-            historialCategorias[catUpper]++;
-            localStorage.setItem("crm_ventas_categorias", JSON.stringify(historialCategorias));
-        }
-
-        guardarEnLocalStorage();
-        renderizarTabla();
-        actualizarTarjetasEstadisticas();
-        showToast(`Venta registrada: 1 unidad de ${producto.nombre} descontada.`);
->>>>>>> Stashed changes
-    } else {
-        showToast(`Error: ${producto.nombre} está totalmente agotado.`);
-    }
-};
-
-// ==========================================================================
-// 3. MODALES Y FORMULARIOS: Vincular datos para Create / Update
-// ==========================================================================
-window.abrirModal = function (id = null) {
-    const modal = document.getElementById('product-modal');
-    const form = document.getElementById('form-product');
-    const title = document.getElementById('modal-title');
-
-    form.reset();
-    modal.classList.add('open');
-
-    if (id) {
-        title.innerText = "Modificar Existencias / Producto";
-        const p = inventario.find(prod => prod.id === id);
-        const categoriaActual = p.categoria && p.categoria.nombre ? p.categoria.nombre.toUpperCase() : "";
-
-        document.getElementById('product-id').value = p.id;
-        document.getElementById('prod-name').value = p.nombre;
-        document.getElementById('prod-category').value = categoriaActual;
-        document.getElementById('prod-price').value = p.precio || 1.50;
-        document.getElementById('prod-stock').value = p.cantidad || 0;
-    } else {
-        title.innerText = "Agregar Nuevo Producto";
-        document.getElementById('product-id').value = "";
-    }
-};
-
-window.cerrarModal = function () {
-    document.getElementById('product-modal').classList.remove('open');
-};
-
-// ==========================================================================
-// 4. OPERACIONES CREATE / UPDATE (POST & PUT)
-// ==========================================================================
-async function guardarProducto(e) {
-    e.preventDefault();
-    const id = document.getElementById('product-id').value;
-    const nombre = document.getElementById('prod-name').value;
-    const categoriaStr = document.getElementById('prod-category').value;
-    const precio = parseFloat(document.getElementById('prod-price').value);
-    const stock = parseInt(document.getElementById('prod-stock').value);
-
-    const payload = {
-        nombre,
-        categoria: { nombre: categoriaStr.charAt(0) + categoriaStr.slice(1).toLowerCase() },
-        precio,
-        cantidad: stock
+    const state = {
+        productos: [],
+        editingId: null,
+        search: ""
     };
 
-    try {
-        let response;
-        if (id) {
-            response = await fetch(`${API_BASE_URL}/stock/productos/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: parseInt(id), ...payload })
-            });
-            if (response.ok) showToast("Producto actualizado correctamente.");
-        } else {
-            response = await fetch(`${API_BASE_URL}/stock/productos`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (response.ok) showToast("Nuevo producto añadido al catálogo.");
-        }
+    const form = document.getElementById("producto-form");
+    const notice = document.getElementById("productos-notice");
+    const tableBody = document.getElementById("productos-table-body");
+    const searchInput = document.getElementById("producto-search");
+    const summary = document.getElementById("productos-summary");
+    const totalChip = document.getElementById("productos-total-chip");
+    const alertChip = document.getElementById("productos-alerta-chip");
+    const formTitle = document.getElementById("producto-form-title");
+    const submitButton = document.getElementById("producto-submit");
+    const cancelButton = document.getElementById("producto-cancel");
+    const categoryList = document.getElementById("categorias-list");
 
-        if (!response.ok) throw new Error("Fallo en la persistencia de datos.");
+    const fields = {
+        id: document.getElementById("producto-id"),
+        categoria: document.getElementById("producto-categoria"),
+        nombre: document.getElementById("producto-nombre"),
+        cantidad: document.getElementById("producto-cantidad"),
+        stockMinimo: document.getElementById("producto-stock-minimo"),
+        unidad: document.getElementById("producto-unidad"),
+        telefono: document.getElementById("producto-telefono")
+    };
 
-        cerrarModal();
-        await cargarInventarioDesdeAPI();
+    form.addEventListener("submit", handleSubmit);
+    cancelButton.addEventListener("click", resetForm);
+    searchInput.addEventListener("input", (event) => {
+        state.search = event.target.value.trim().toLowerCase();
+        renderSummary();
+        renderTable();
+    });
 
-    } catch (error) {
-        console.error(error);
-        showToast("Error al guardar los cambios en la API.");
-    }
-}
+    loadProductos();
 
-// ==========================================================================
-// 5. OPERACIÓN DELETE (DELETE)
-// ==========================================================================
-window.eliminarProducto = async function (id) {
-    if (confirm("¿Estás completamente seguro de eliminar este producto del inventario?")) {
+    async function loadProductos() {
         try {
-            const response = await fetch(`${API_BASE_URL}/stock/productos/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) throw new Error("No se pudo eliminar de la base de datos.");
-
-            showToast("Producto eliminado de la base de datos.");
-            await cargarInventarioDesdeAPI();
-
+            setNotice("");
+            state.productos = await api.get("/stock");
+            renderCategoryList();
+            renderSummary();
+            renderTable();
         } catch (error) {
-            console.error(error);
-            showToast("Error al procesar la baja del producto.");
+            setNotice(error.message, "error");
         }
     }
-};
 
-function showToast(mensaje) {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.innerText = mensaje;
-    container.appendChild(toast);
-    setTimeout(() => { toast.remove(); }, 3000);
-}
+    function renderCategoryList() {
+        const categorias = [...new Set(state.productos.map((producto) => producto.categoria?.nombre).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+        categoryList.innerHTML = categorias.map((categoria) => `<option value="${escapeHtml(categoria)}"></option>`).join("");
+    }
+
+    function renderSummary() {
+        const filtered = getFilteredProductos();
+        const lowStock = filtered.filter((producto) => Number(producto.cantidad || 0) <= Number(producto.stockMinimo || 0)).length;
+        const totalUnits = filtered.reduce((acc, producto) => acc + Number(producto.cantidad || 0), 0);
+
+        totalChip.textContent = `${state.productos.length} productos`;
+        alertChip.textContent = `${state.productos.filter((producto) => Number(producto.cantidad || 0) <= Number(producto.stockMinimo || 0)).length} bajo minimo`;
+        summary.innerHTML = `
+            <span class="summary-chip">${filtered.length} visibles</span>
+            <span class="summary-chip">${totalUnits} unidades filtradas</span>
+            <span class="summary-chip">${lowStock} alertas en filtro</span>
+        `;
+    }
+
+    function renderTable() {
+        const productos = getFilteredProductos();
+
+        if (!productos.length) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">No hay productos para mostrar.</div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tableBody.innerHTML = productos.map((producto) => {
+            const lowStock = Number(producto.cantidad || 0) <= Number(producto.stockMinimo || 0);
+            const stockBadge = lowStock ? "badge warning" : "badge active";
+            const stockLabel = lowStock ? "Bajo minimo" : "OK";
+
+            return `
+                <tr>
+                    <td>
+                        <div class="stack">
+                            <strong>${escapeHtml(producto.categoria?.nombre || "-")}</strong>
+                            <span class="muted">ID ${producto.id}</span>
+                        </div>
+                    </td>
+                    <td>${escapeHtml(producto.nombre || "-")}</td>
+                    <td>
+                        <div class="stack">
+                            <strong>${escapeHtml(String(producto.cantidad ?? 0))}</strong>
+                            <span class="${stockBadge}">${stockLabel}</span>
+                        </div>
+                    </td>
+                    <td>${escapeHtml(String(producto.stockMinimo ?? 0))}</td>
+                    <td>${escapeHtml(producto.unidadMedida || "-")}</td>
+                    <td>${escapeHtml(producto.telefonoProveedor || "-")}</td>
+                    <td>
+                        <div class="row-actions">
+                            <button class="btn-icon secondary" data-action="edit" data-id="${producto.id}">Editar</button>
+                            <button class="btn-icon danger" data-action="delete" data-id="${producto.id}">Borrar</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+
+        tableBody.querySelectorAll("[data-action='edit']").forEach((button) => {
+            button.addEventListener("click", () => editProducto(Number(button.dataset.id)));
+        });
+
+        tableBody.querySelectorAll("[data-action='delete']").forEach((button) => {
+            button.addEventListener("click", () => deleteProducto(Number(button.dataset.id)));
+        });
+    }
+
+    function getFilteredProductos() {
+        if (!state.search) {
+            return state.productos;
+        }
+
+        return state.productos.filter((producto) => {
+            return [
+                producto.categoria?.nombre,
+                producto.nombre,
+                producto.telefonoProveedor,
+                producto.unidadMedida
+            ].some((value) => String(value || "").toLowerCase().includes(state.search));
+        });
+    }
+
+    function editProducto(id) {
+        const producto = state.productos.find((item) => Number(item.id) === id);
+        if (!producto) {
+            return;
+        }
+
+        state.editingId = id;
+        fields.id.value = id;
+        fields.categoria.value = producto.categoria?.nombre || "";
+        fields.nombre.value = producto.nombre || "";
+        fields.cantidad.value = producto.cantidad ?? "";
+        fields.stockMinimo.value = producto.stockMinimo ?? "";
+        fields.unidad.value = producto.unidadMedida || "unidades";
+        fields.telefono.value = producto.telefonoProveedor || "";
+        submitButton.textContent = "Actualizar producto";
+        cancelButton.hidden = false;
+        formTitle.textContent = "Editar producto";
+        setNotice("Editando producto. Cambia los datos y guarda los cambios.", "success");
+        fields.categoria.focus();
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+
+        const payload = {
+            categoriaNombre: fields.categoria.value.trim(),
+            nombre: fields.nombre.value.trim(),
+            cantidad: Number(fields.cantidad.value),
+            stockMinimo: fields.stockMinimo.value === "" ? null : Number(fields.stockMinimo.value),
+            unidadMedida: fields.unidad.value.trim() || "unidades",
+            telefonoProveedor: fields.telefono.value.trim() || null
+        };
+
+        try {
+            if (state.editingId) {
+                await api.put(`/stock/${state.editingId}`, payload);
+                setNotice("Producto actualizado correctamente.", "success");
+            } else {
+                await api.post("/stock", payload);
+                setNotice("Producto guardado correctamente.", "success");
+            }
+
+            resetForm();
+            await loadProductos();
+        } catch (error) {
+            setNotice(error.message, "error");
+        }
+    }
+
+    async function deleteProducto(id) {
+        const producto = state.productos.find((item) => Number(item.id) === id);
+        if (!producto || !window.confirm(`Borrar el producto ${producto.nombre}?`)) {
+            return;
+        }
+
+        try {
+            await api.del(`/stock/${id}`);
+            setNotice("Producto borrado correctamente.", "success");
+            if (state.editingId === id) {
+                resetForm();
+            }
+            await loadProductos();
+        } catch (error) {
+            setNotice(error.message, "error");
+        }
+    }
+
+    function resetForm() {
+        state.editingId = null;
+        form.reset();
+        fields.id.value = "";
+        fields.unidad.value = "unidades";
+        submitButton.textContent = "Guardar producto";
+        cancelButton.hidden = true;
+        formTitle.textContent = "Nuevo producto";
+        setNotice("");
+    }
+
+    function setNotice(message, type = "") {
+        notice.textContent = message;
+        notice.className = `notice${type ? ` ${type}` : ""}`;
+    }
+});

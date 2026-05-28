@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM - Mesas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/styles.css">
+    <link rel="stylesheet" href="../../css/crud.css">
+</head>
+<body>
+    <div class="app-container">
+        <div id="sidebar-container"></div>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="top-bar-left">
+                    <h2>Gestion de mesas</h2>
+                </div>
+                <div class="top-bar-right">
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <span class="user-name">Administrador</span>
+                            <span id="txt-user-role">Sala</span>
+                        </div>
+                        <div class="user-avatar">MS</div>
+                    </div>
+                </div>
+            </header>
+
+            <section class="crud-page">
+                <section class="page-hero">
+                    <span class="page-eyebrow">Mesas</span>
+                    <h1>Editar, borrar y crear mesas</h1>
+                    <p>Las mesas sirven como base para reservas y ocupacion. Desde aqui puedes ajustar su capacidad o eliminarlas cuando no tengan reservas asociadas.</p>
+                    <div class="hero-meta">
+                        <span class="hero-chip" id="mesas-total-chip">0 mesas</span>
+                        <span class="hero-chip" id="mesas-capacidad-chip">0 plazas</span>
+                    </div>
+                </section>
+
+                <div class="panel-grid">
+                    <section class="panel">
+                        <div class="panel-header">
+                            <h2 id="mesa-form-title">Nueva mesa</h2>
+                            <p>Define el numero visible de la mesa y la capacidad maxima.</p>
+                        </div>
+                        <div class="panel-body">
+                            <div id="mesas-notice" class="notice"></div>
+                            <form id="mesa-form">
+                                <input type="hidden" id="mesa-id">
+                                <div class="form-grid">
+                                    <div class="field">
+                                        <label for="mesa-numero">Numero de mesa</label>
+                                        <input type="number" id="mesa-numero" min="1" step="1" required>
+                                    </div>
+                                    <div class="field">
+                                        <label for="mesa-capacidad">Capacidad</label>
+                                        <input type="number" id="mesa-capacidad" min="1" step="1" required>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-primary" id="mesa-submit">Guardar mesa</button>
+                                    <button type="button" class="btn-secondary" id="mesa-cancel" hidden>Cancelar edicion</button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+
+                    <section class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h2>Mesas registradas</h2>
+                                <p>Busca por numero de mesa o capacidad para localizar el registro.</p>
+                            </div>
+                            <input type="text" id="mesa-search" class="filter-input" placeholder="Buscar mesa">
+                        </div>
+                        <div class="panel-body">
+                            <div class="summary-row" id="mesas-summary"></div>
+                            <div class="table-container">
+                                <table class="crm-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Numero</th>
+                                            <th>Capacidad</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="mesas-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../auth.js"></script>
+    <script src="../main.js"></script>
+    <script src="../api.js"></script>
+    <script src="../modules/mesas.js"></script>
+</body>
+</html>

@@ -32,6 +32,7 @@ function marcarEnlaceActivo() {
         if (page === "dashboard.html") document.getElementById("link-dashboard")?.classList.add("active");
         if (page === "productos.html") document.getElementById("link-productos")?.classList.add("active");
         if (page === "reservas.html") document.getElementById("link-reservas")?.classList.add("active");
+        if (page === "mesas.html") document.getElementById("link-mesas")?.classList.add("active");
         if (page === "personal.html") document.getElementById("link-personal")?.classList.add("active");
         if (page === "configuracion.html") document.getElementById("link-configuracion")?.classList.add("active");
     }, 150);
