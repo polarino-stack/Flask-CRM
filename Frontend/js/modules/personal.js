@@ -360,11 +360,62 @@
 
 /**
  * ==========================================================================
+<<<<<<< Updated upstream
  * CRM RESTAURANTE: MÓDULO DE GESTIÓN DE PERSONAL (CONEXIÓN API SPRING BOOT)
  * ==========================================================================
  */
 
 let employees = [];
+=======
+ * CRM RESTAURANTE: MÓDULO DE GESTIÓN DE PERSONAL
+ * ==========================================================================
+ */
+
+// 1. ESTADO GLOBAL DE LA APLICACIÓN (SIMULACION DE UNA BASE DE DATOS)
+let employees = [
+    {
+        id: "1",
+        name: "Carlos Martínez",
+        email: "carlos.m@restaurante.com",
+        phone: "600123456",
+        role: "SUPERVISOR", // Jefe de sala
+        shift: "Completo (Partido)",
+        schedule: "12:30-16:30, 20:00-00:00",
+        status: "ACTIVO",
+        joinDate: "2024-01-15",
+        avatar: "",
+        username: "cmartinez"
+    },
+    {
+        id: "2",
+        name: "Lucía Gómez",
+        email: "lucia.g@restaurante.com",
+        phone: "611987654",
+        role: "CAMARERO",
+        shift: "Tarde",
+        schedule: "16:00 - 00:00",
+        status: "TRABAJANDO",
+        joinDate: "2025-03-10",
+        avatar: "",
+        username: "lgomez"
+    },
+    {
+        id: "3",
+        name: "Miguel Ruiz",
+        email: "miguel.r@restaurante.com",
+        phone: "622456789",
+        role: "COCINA",
+        shift: "Mañana",
+        schedule: "08:00 - 16:00",
+        status: "BAJA",
+        joinDate: "2023-11-01",
+        avatar: "",
+        username: "mruiz"
+    }
+];
+
+// Registro en memoria de asistencias (Fichajes)
+>>>>>>> Stashed changes
 let attendanceHistory = [];
 
 // SELECTORES DE ELEMENTOS DEL DOM
@@ -667,6 +718,101 @@ function closeModalStructure() {
     formEmployee.reset();
 }
 
+<<<<<<< Updated upstream
+=======
+function handleFormSubmit(e) {
+    e.preventDefault();
+
+    const id = empIdInput.value;
+    const newEmployeeData = {
+        name: empNameInput.value.trim(),
+        email: empEmailInput.value.trim(),
+        phone: empPhoneInput.value.trim(),
+        role: empRoleInput.value,
+        shift: empShiftInput.value,
+        schedule: empScheduleInput.value.trim(),
+        joinDate: empDateInput.value,
+        status: empStatusInput.value,
+        avatar: empAvatarInput.value.trim(),
+        username: empUsernameInput.value.trim()
+    };
+
+    if (id) {
+        // OPERACIÓN: EDICIÓN / ACTUALIZACIÓN
+        const index = employees.findIndex(emp => emp.id === id);
+        if (index !== -1) {
+            // Si modificaron la contraseña, la actualizamos
+            if (empPasswordInput.value && empPasswordInput.value !== "••••••••") {
+                newEmployeeData.password = empPasswordInput.value;
+            } else {
+                newEmployeeData.password = employees[index].password;
+            }
+            newEmployeeData.id = id;
+            employees[index] = newEmployeeData;
+            showToastNotification(`Ficha de ${newEmployeeData.name} actualizada.`);
+        }
+    } else {
+        // OPERACIÓN: CREACIÓN / NUEVO EMPLEADO
+        newEmployeeData.id = Date.now().toString(); // ID único temporal
+        newEmployeeData.password = empPasswordInput.value;
+        employees.push(newEmployeeData);
+        showToastNotification(`Empleado ${newEmployeeData.name} contratado con éxito.`);
+    }
+
+    updateStorage();
+    filterAndRender();
+    closeModalStructure();
+}
+
+function editEmployee(id) {
+    const employee = employees.find(e => e.id === id);
+    if (employee) openModalStructure(employee);
+}
+
+function deleteEmployee(id) {
+    const employee = employees.find(e => e.id === id);
+    if (!employee) return;
+
+    // Confirmación nativa elegante integrada
+    const confirmDelete = confirm(`¿Estás completamente seguro de que deseas dar de baja o eliminar a ${employee.name}?`);
+    if (confirmDelete) {
+        employees = employees.filter(e => e.id !== id);
+        showToastNotification(`Se eliminó la ficha de ${employee.name}.`, "danger");
+        updateStorage();
+        filterAndRender();
+    }
+}
+
+// 8. EXTRAS: SISTEMA DE ASISTENCIA / FICHAJE (SIMULADO EN TIEMPO REAL)
+window.toggleAttendance = function (id) {
+    const employee = employees.find(e => e.id === id);
+    if (!employee) return;
+
+    const fechaHoy = new Date().toLocaleDateString([], { day: '2-digit', month: '2-digit' });
+    const horaActual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const estampaTiempo = `${fechaHoy} ${horaActual}`;
+
+    if (employee.status !== "TRABAJANDO") {
+        employee.status = "TRABAJANDO";
+        // Al entrar a trabajar, guardamos su traza de acceso para la tabla de seguridad
+        employee.lastAccess = `Hoy ${horaActual}`;
+        attendanceHistory.push({ id: employee.id, name: employee.name, checkIn: horaActual, checkOut: null });
+        showToastNotification(`⏱️ ${employee.name} ha marcado ENTRADA a las ${horaActual}.`);
+    } else {
+        employee.status = "ACTIVO";
+        // Al salir de trabajar, se mantiene su último acceso pero cambia su estado visual
+        employee.lastAccess = `Hoy ${horaActual}`;
+        const record = attendanceHistory.find(r => r.id === employee.id && !r.checkOut);
+        if (record) record.checkOut = horaActual;
+        showToastNotification(`⏱️ ${employee.name} ha marcado SALIDA a las ${horaActual}.`);
+    }
+
+    updateStorage();
+    filterAndRender();
+};
+
+// 9. TOAST NOTIFICATIONS COMPONENT
+>>>>>>> Stashed changes
 function showToastNotification(message, type = "success") {
     const container = document.getElementById("toast-container");
     const toast = document.createElement("div");

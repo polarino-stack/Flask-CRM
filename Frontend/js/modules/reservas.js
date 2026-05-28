@@ -318,6 +318,7 @@
 
 /**
  * ==========================================================================
+<<<<<<< Updated upstream
  * CRM RESTAURANTE: MÓDULO DE GESTIÓN DE RESERVAS (CONEXIÓN API SPRING BOOT)
  * ==========================================================================
  */
@@ -325,6 +326,32 @@
 let mapaMesasVivas = [];
 let libroReservas = [];
 let listaTurnosVivos = []; // Buffer para guardar los turnos de la API
+=======
+ * CRM RESTAURANTE: MÓDULO DE GESTIÓN DE RESERVAS (ESTADO DINÁMICO)
+ * ==========================================================================
+ */
+
+// 1. RESPALDO ESTRUCTURAL (Copia idéntica por si el LocalStorage se borra)
+const mesasEstructuralesDefecto = [
+    { id: "M1", zona: "INTERIOR", paxMax: 2 }, { id: "M2", zona: "INTERIOR", paxMax: 2 },
+    { id: "M3", zona: "INTERIOR", paxMax: 4 }, { id: "M4", zona: "INTERIOR", paxMax: 4 },
+    { id: "M5", zona: "INTERIOR", paxMax: 6 }, { id: "M6", zona: "INTERIOR", paxMax: 6 },
+    { id: "M7", zona: "INTERIOR", paxMax: 8 }, { id: "M8", zona: "INTERIOR", paxMax: 4 },
+    { id: "T1", zona: "TERRAZA", paxMax: 2 }, { id: "T2", zona: "TERRAZA", paxMax: 2 },
+    { id: "T3", zona: "TERRAZA", paxMax: 4 }, { id: "T4", zona: "TERRAZA", paxMax: 4 },
+    { id: "T5", zona: "TERRAZA", paxMax: 4 }, { id: "T6", zona: "TERRAZA", paxMax: 6 },
+    { id: "T7", zona: "TERRAZA", paxMax: 6 }, { id: "T8", zona: "TERRAZA", paxMax: 8 }
+];
+
+const reservasIniciales = [
+    { id: "1", nombre: "Mesa Marta", telefono: "612345678", pax: 2, hora: "13:30", fecha: "2026-05-19", mesaId: "M3", notas: "Ninguna", estado: "CONFIRMADA", responsable: "Julio Admin" },
+    { id: "2", nombre: "Familia López", telefono: "698765432", pax: 5, hora: "14:15", fecha: "2026-05-19", mesaId: "T6", notas: "⚠️ Trona, 1 Intolerante a lactosa", estado: "PENDIENTE", responsable: "Julio Admin" }
+];
+
+//Conectamos reservas directamente con la base de datos de Configuración
+let mapaMesasVivas = JSON.parse(localStorage.getItem("crm_mesas_config")) || mesasEstructuralesDefecto;
+let libroReservas = JSON.parse(localStorage.getItem("crm_reservas")) || reservasIniciales;
+>>>>>>> Stashed changes
 
 // Elementos DOM
 const tableBody = document.getElementById("reservas-table-body");
@@ -353,10 +380,18 @@ document.addEventListener("DOMContentLoaded", () => {
     inputFechaFiltro.value = hoy;
     inputFecha.value = hoy;
 
+<<<<<<< Updated upstream
     // ARRANQUE EN CADENA ASÍNCRONO: Mesas -> Turnos -> Reservas
     cargarMesasDesdeAPI();
 
     // Listeners de los formularios y filtros
+=======
+    // Inicializar componentes dinámicos
+    poblarDesplegableMesas();
+    initReservasModule();
+
+    // Listeners (Se quedan exactamente igual)
+>>>>>>> Stashed changes
     formReserva.addEventListener("submit", guardarReserva);
     inputFechaFiltro.addEventListener("change", sincronizarPantallaSala);
     inputStatusFiltro.addEventListener("change", sincronizarPantallaSala);
@@ -364,6 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnCancelEdit.addEventListener("click", abortarEdicion);
 });
 
+<<<<<<< Updated upstream
 // ==========================================================================
 // 1. CARGA EN CADENA DESDE LA API DE SPRING BOOT
 // ==========================================================================
@@ -430,6 +466,18 @@ function poblarDesplegableTurnos() {
             selectHora.appendChild(opt);
         }
     });
+=======
+function initReservasModule() {
+    // Re-leer la configuración viva de mesas por si el usuario acaba de volver de esa pantalla
+    mapaMesasVivas = JSON.parse(localStorage.getItem("crm_mesas_config")) || mesasEstructuralesDefecto;
+    localStorage.setItem("crm_reservas", JSON.stringify(libroReservas));
+
+    const filtradas = filtrarLibroReservas();
+    poblarDesplegableMesas(); // Mantiene actualizado el selector del formulario
+    renderizarTablaReservas(filtradas);
+    dibujarMapaMesasInteractivas(filtradas);
+    calcularMetricasKpi();
+>>>>>>> Stashed changes
 }
 
 function poblarDesplegableMesas() {
@@ -499,8 +547,10 @@ function renderizarTablaReservas(lista) {
     });
 }
 
+//FUNCIÓN DE MAQUEADO DE SALA DE CONTROL ELECTRÓNICO TOTALMENTE DINÁMICO
 function dibujarMapaMesasInteractivas(reservasDelDia) {
     if (!dynamicZonesContainer) return;
+<<<<<<< Updated upstream
     dynamicZonesContainer.innerHTML = "";
 
     if (mapaMesasVivas.length === 0) {
@@ -523,8 +573,21 @@ function dibujarMapaMesasInteractivas(reservasDelDia) {
         let claseEstado = "state-free";
         if (reservaAsociada) {
             claseEstado = reservaAsociada.estado === "SENTADO" ? "state-seated" : "state-reserved";
-        }
+=======
+    dynamicZonesContainer.innerHTML = ""; // Limpieza total de mapas previos
 
+    // 1. Extraer qué zonas existen de verdad en el array de Configuración
+    const mapaZonasDetectadas = {};
+    mapaMesasVivas.forEach(m => {
+        const zonaNorm = m.zona.toUpperCase().trim();
+        if (!mapaZonasDetectadas[zonaNorm]) {
+            mapaZonasDetectadas[zonaNorm] = [];
+>>>>>>> Stashed changes
+        }
+        mapaZonasDetectadas[zonaNorm].push(m);
+    });
+
+<<<<<<< Updated upstream
         const tableNode = document.createElement("div");
         tableNode.className = `table-node ${claseEstado}`;
         tableNode.innerHTML = `
@@ -538,10 +601,61 @@ function dibujarMapaMesasInteractivas(reservasDelDia) {
                 showToast(`Mesa ${m.numeroMesa} seleccionada en el formulario.`);
             } else {
                 showToast(`Mesa ${m.numeroMesa} ocupada por la reserva de "${reservaAsociada.nombre}".`);
-            }
-        };
+=======
+    const llavesZonas = Object.keys(mapaZonasDetectadas);
 
+    if (llavesZonas.length === 0) {
+        dynamicZonesContainer.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:16px;">No hay infraestructura de mesas creada. Ve al módulo de Configuración.</p>`;
+        return;
+    }
+
+    // 2. Iterar por cada zona creada en configuración y levantar su layout en el DOM solo
+    llavesZonas.forEach(zonaKey => {
+        // Fabricamos el título estilizado de la Zona
+        const h4 = document.createElement("h4");
+        h4.className = "zone-title";
+        h4.style.marginTop = "20px";
+        h4.innerText = `Zona ${zonaKey.charAt(0) + zonaKey.slice(1).toLowerCase()}`;
+        dynamicZonesContainer.appendChild(h4);
+
+        // Fabricamos la rejilla CSS de nodos de mesas
+        const gridDiv = document.createElement("div");
+        gridDiv.className = "grid-tables-map";
+
+        // Poblamos las mesas pertenecientes a esta iteración de zona
+        mapaZonasDetectadas[zonaKey].forEach(m => {
+            const reservaAsociada = reservasDelDia.find(r => r.mesaId === m.id && r.estado !== "CANCELADA" && r.estado !== "FINALIZADA");
+
+            let claseEstado = "state-free";
+            if (reservaAsociada) {
+                claseEstado = reservaAsociada.estado === "SENTADO" ? "state-seated" : "state-reserved";
+>>>>>>> Stashed changes
+            }
+
+<<<<<<< Updated upstream
         gridDiv.appendChild(tableNode);
+=======
+            const tableNode = document.createElement("div");
+            tableNode.className = `table-node ${claseEstado}`;
+            tableNode.innerHTML = `
+                <span class="table-id">${m.id}</span>
+                <span class="table-cap">${m.paxMax} Pax</span>
+            `;
+
+            tableNode.onclick = () => {
+                if (claseEstado === "state-free") {
+                    selectMesaForm.value = m.id;
+                    showToast(`Mesa ${m.id} seleccionada en el formulario.`);
+                } else {
+                    showToast(`Mesa ${m.id} ocupada por reserva de "${reservaAsociada.nombre}".`);
+                }
+            };
+
+            gridDiv.appendChild(tableNode);
+        });
+
+        dynamicZonesContainer.appendChild(gridDiv);
+>>>>>>> Stashed changes
     });
 
     dynamicZonesContainer.appendChild(gridDiv);
@@ -554,8 +668,15 @@ function calcularMetricasKpi() {
     const total = delDia.length;
     const pendientes = delDia.filter(r => r.estado === "PENDIENTE").length;
     const confirmadas = delDia.filter(r => r.estado === "CONFIRMADA").length;
+<<<<<<< Updated upstream
     const ocupadasHoy = delDia.filter(r => r.estado === "CONFIRMADA" || r.estado === "SENTADO").length;
 
+=======
+
+    const ocupadasHoy = delDia.filter(r => r.estado === "CONFIRMADA" || r.estado === "SENTADO").length;
+
+    //El totalizador ahora calcula la resta sobre la longitud del array estructural real, no sobre 16 fijo
+>>>>>>> Stashed changes
     const totalMesasRestaurante = mapaMesasVivas.length;
     const libresCount = Math.max(0, totalMesasRestaurante - ocupadasHoy);
 
@@ -563,6 +684,12 @@ function calcularMetricasKpi() {
     document.getElementById("stat-pending-res").innerText = pendientes;
     document.getElementById("stat-confirmed-res").innerText = confirmadas;
     document.getElementById("stat-tables-free").innerText = `${libresCount} / ${totalMesasRestaurante}`;
+<<<<<<< Updated upstream
+=======
+
+    localStorage.setItem("crm_kpi_num_reservas", total);
+    localStorage.setItem("crm_kpi_reservas_pendientes", pendientes);
+>>>>>>> Stashed changes
 }
 
 // ==========================================================================
@@ -584,6 +711,7 @@ async function guardarReserva(e) {
         estado: "PENDIENTE"
     };
 
+<<<<<<< Updated upstream
     try {
         let response;
         if (id) {
@@ -617,6 +745,25 @@ async function guardarReserva(e) {
         console.error("🔴 Error al guardar la reserva:", error);
         showToast("Error de conexión al guardar el registro.");
     }
+=======
+    if (id) {
+        const index = libroReservas.findIndex(r => r.id === id);
+        datos.id = id;
+        datos.estado = libroReservas[index].estado;
+        libroReservas[index] = datos;
+        showToast("Ficha de reserva modificada.");
+        abortarEdicion();
+    } else {
+        datos.id = Date.now().toString();
+        datos.estado = "PENDIENTE";
+        libroReservas.push(datos);
+        showToast(`Reserva para ${datos.nombre} registrada.`);
+    }
+
+    formReserva.reset();
+    inputFecha.value = inputFechaFiltro.value;
+    initReservasModule();
+>>>>>>> Stashed changes
 }
 
 window.cargarReservaParaEditar = function (id) {
