@@ -395,13 +395,13 @@ const empPasswordInput = document.getElementById("emp-password");
 
 // INICIALIZADOR DEL MÓDULO
 document.addEventListener("DOMContentLoaded", () => {
-    // Cargamos los empleados vivos desde la API de tu amigo
+    // Cargamos los empleados vivos desde la API de Spring Boot
     cargarEmpleadosDesdeAPI();
     setupEventListeners();
 });
 
 // ==========================================================================
-// CONNECTOR API: Petición GET asíncrona a http://172.17.30.202:8082/api/empleados
+// 1. OPERACIÓN READ (GET): Traer empleados en vivo
 // ==========================================================================
 async function cargarEmpleadosDesdeAPI() {
     try {
@@ -412,7 +412,7 @@ async function cargarEmpleadosDesdeAPI() {
 
         employees = await response.json();
 
-        // Sincronizamos la UI
+        // Sincronizamos la interfaz de usuario
         filterAndRender();
         calculateDashboardStats();
 
@@ -443,13 +443,12 @@ function filterAndRender() {
     const statusVal = filterStatus.value;
 
     const filtered = employees.filter(emp => {
-        const matchesSearch = emp.nombre.toLowerCase().includes(searchText) ||
-            (emp.apellido && emp.apellido.toLowerCase().includes(searchText)) ||
-            (emp.puesto && emp.puesto.toLowerCase().includes(searchText));
+        const nombreCompleto = `${emp.nombre} ${emp.apellido || ""}`.toLowerCase();
+        const puestoReal = (emp.puesto || "CAMARERO").toLowerCase();
 
-        // Adaptamos el filtro clásico si tu amigo maneja roles/puestos fijos
-        const matchesRole = (roleVal === "TODOS" || (emp.puesto && emp.puesto.toUpperCase() === roleVal));
-        // Manejamos un fallback de estado por defecto para evitar celdas vacías
+        const matchesSearch = nombreCompleto.includes(searchText) || puestoReal.includes(searchText);
+        const matchesRole = (roleVal === "TODOS" || puestoReal.toUpperCase() === roleVal);
+
         const empStatus = emp.status || "ACTIVO";
         const matchesStatus = (statusVal === "TODOS" || empStatus.toUpperCase() === statusVal);
 
@@ -476,14 +475,14 @@ function renderTableRows(dataArray) {
     dataArray.forEach(emp => {
         const tr = document.createElement("tr");
 
-        // MAPEO DE ATRIBUTOS REALES: combinamos nombre y apellido de la API de tu amigo
+        // Mapeo adaptado a los atributos del backend
         const nombreCompleto = `${emp.nombre} ${emp.apellido || ""}`.trim();
         const emailMock = emp.email || `${emp.nombre.toLowerCase()}@restaurante.com`;
         const rolMock = emp.puesto || "CAMARERO";
         const telefonoReal = emp.numeroTelefono || "600000000";
-        const turnoMock = emp.turno || "Completo (Partido)";
-        const horarioMock = emp.horario || "16:00 - 00:00";
-        const fechaIngresoMock = emp.fechaIngreso || "2025-03-10";
+        const turnoMock = emp.shift || "Completo (Partido)";
+        const horarioMock = emp.schedule || "16:00 - 00:00";
+        const fechaIngresoMock = emp.joinDate || "2026-03-10";
         const estadoLaboral = emp.status || "ACTIVO";
 
         const initials = emp.nombre.substring(0, 1) + (emp.apellido ? emp.apellido.substring(0, 1) : "");
@@ -540,7 +539,7 @@ function calculateDashboardStats() {
 }
 
 // ==========================================================================
-// 2. OPERACIONES MUTABLES CONTRA LA API (CREATE / UPDATE / DELETE)
+// 2. OPERACIONES MUTABLES CONTRA LA API (CREATE / POST)
 // ==========================================================================
 async function handleFormSubmit(e) {
     e.preventDefault();
@@ -548,30 +547,33 @@ async function handleFormSubmit(e) {
     const id = empIdInput.value;
     const parts = empNameInput.value.trim().split(" ");
     const nombreParam = parts[0];
-    const apellidoParam = parts.slice(1).join(" ") || "";
+    const apellidoParam = parts.slice(1).join(" ") || "Desconocido";
 
-    // Construimos el Payload JSON mapeando los atributos de tu amigo en IntelliJ
+    // Generamos datos obligatorios de validación requeridos por la DB de tu amigo
     const payload = {
         nombre: nombreParam,
         apellido: apellidoParam,
         numeroTelefono: empPhoneInput.value.trim(),
-        dni: "12345678Z", // Valor estático por defecto requerido por la DB
-        horasSemanales: 40,
-        horasMensuales: 160,
+        dni: "12345678X", // Campo obligatorio en la entidad de Java
+        horasSemanales: 40, // Campo obligatorio en la entidad de Java
+        horasMensuales: 160, // Campo obligatorio en la entidad de Java
         puesto: empRoleInput.value,
-        status: empStatusInput.value
+        status: empStatusInput.value,
+        email: empEmailInput.value.trim(),
+        shift: empShiftInput.value,
+        schedule: empScheduleInput.value.trim(),
+        joinDate: empDateInput.value || "2026-05-22",
+        avatar: empAvatarInput.value.trim(),
+        username: empUsernameInput.value.trim()
     };
 
     try {
         let response;
         if (id) {
-            // Operación UPDATE (PUT) a /api/empleados/${id}
-            response = await fetch(`${API_BASE_URL}/empleados/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: parseInt(id), ...payload })
-            });
-            if (response.ok) showToastNotification(`Ficha actualizada correctamente.`);
+            // DETECCIÓN: Como Java no tiene @PutMapping aún, mostramos un aviso elegante
+            showToastNotification("La API de Java no soporta modificar empleados todavía.", "danger");
+            closeModalStructure();
+            return;
         } else {
             // Operación CREATE (POST) a /api/empleados
             response = await fetch(`${API_BASE_URL}/empleados`, {
@@ -579,17 +581,20 @@ async function handleFormSubmit(e) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            if (response.ok) showToastNotification(`Nuevo empleado guardado en Spring Boot.`);
         }
 
-        if (!response.ok) throw new Error();
+        if (!response.ok) {
+            const errorServer = await response.text();
+            throw new Error(errorServer || "Error devuelto por Spring Boot");
+        }
 
+        showToastNotification(`Empleado ${payload.nombre} guardado en Spring Boot.`, "success");
         closeModalStructure();
         await cargarEmpleadosDesdeAPI();
 
     } catch (error) {
-        console.error("🔴 Error al guardar empleado:", error);
-        showToastNotification("Error al procesar los cambios en el servidor Java.", "danger");
+        console.error("🔴 Error al guardar empleado en Java:", error);
+        showToastNotification("Fallo al insertar en base de datos.", "danger");
     }
 }
 
@@ -602,20 +607,8 @@ window.deleteEmployee = async function (id) {
     const emp = employees.find(e => e.id == id);
     if (!emp) return;
 
-    if (confirm(`¿Estás completamente seguro de que deseas eliminar a ${emp.nombre}?`)) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/empleados/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (!response.ok) throw new Error();
-            showToastNotification(`Se eliminó la ficha de la base de datos.`, "danger");
-            await cargarEmpleadosDesdeAPI();
-        } catch (error) {
-            console.error(error);
-            showToastNotification("Error al eliminar el registro.", "danger");
-        }
-    }
+    // DETECCIÓN: Como Java no tiene @DeleteMapping aún, mostramos aviso preventivo
+    showToastNotification("La API de Java no soporta eliminar empleados todavía.", "danger");
 };
 
 window.toggleAttendance = function (id) {
@@ -669,6 +662,7 @@ function closeModalStructure() {
 
 function showToastNotification(message, type = "success") {
     const container = document.getElementById("toast-container");
+    if (!container) return;
     const toast = document.createElement("div");
     toast.className = `toast ${type === "danger" ? "toast-danger" : ""}`;
 

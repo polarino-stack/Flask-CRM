@@ -1,10 +1,11 @@
-// ==========================================================================
-// CRM RESTAURANTE: CAPA DE CONEXIÓN CON SPRING BOOT (MÓDULO PRODUCTOS)
-// ==========================================================================
-// Mapeo clásico: la variable API_BASE_URL viene cargada globalmente desde config.js
+/**
+ * ==========================================================================
+ * CRM RESTAURANTE: CAPA DE CONEXIÓN CON SPRING BOOT (MÓDULO PRODUCTOS)
+ * ==========================================================================
+ */
 
 let inventario = [];
-let listaCategoriasVivas = []; // Buffer para guardar las categorías reales de la API
+let categoriasRaw = {};
 
 document.addEventListener("DOMContentLoaded", () => {
     // Inicialización del catálogo asíncrono
@@ -48,10 +49,7 @@ async function cargarCategoriasDesdeAPI() {
         const response = await fetch(`${API_BASE_URL}/stock/categorias`);
 
         if (!response.ok) throw new Error();
-        const dataCategorias = await response.json();
-
-        // Extraemos los nombres de las categorías del JSON de tu amigo ("Bebida", etc.)
-        listaCategoriasVivas = Object.keys(dataCategorias);
+        categoriasRaw = await response.json();
 
         // Poblamos los dropdowns automáticamente
         poblarFiltrosDeCategorias();
@@ -63,11 +61,12 @@ async function cargarCategoriasDesdeAPI() {
 function poblarFiltrosDeCategorias() {
     const filterSelect = document.getElementById("category-filter");
     const modalSelect = document.getElementById("prod-category");
+    const listaCategorias = Object.keys(categoriasRaw);
 
     // 1. Poblamos el filtro del catálogo general
     if (filterSelect) {
         filterSelect.innerHTML = '<option value="TODOS">Todas las Categorías</option>';
-        listaCategoriasVivas.forEach(cat => {
+        listaCategorias.forEach(cat => {
             const opt = document.createElement("option");
             opt.value = cat.toUpperCase();
             opt.innerText = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
@@ -77,17 +76,18 @@ function poblarFiltrosDeCategorias() {
 
     // 2. Poblamos el desplegable del formulario de agregar productos
     if (modalSelect) {
-        modalSelect.innerHTML = '';
-        listaCategoriasVivas.forEach(cat => {
+        modalSelect.innerHTML = '<option value="">Selecciona categoría...</option>';
+        listaCategorias.forEach(cat => {
             const opt = document.createElement("option");
-            opt.value = cat.toUpperCase();
+            // Guardamos el string plano como value
+            opt.value = cat;
             opt.innerText = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
             modalSelect.appendChild(opt);
         });
     }
 }
 
-// CORRECCIÓN: Control estricto de los tres estados de stock para los KPIs superiores
+// Control de los tres estados de stock para los KPIs superiores
 function actualizarTarjetasEstadisticas(inventarioVivo) {
     let totalUnidades = 0;
     let pocoStock = 0;
@@ -98,9 +98,9 @@ function actualizarTarjetasEstadisticas(inventarioVivo) {
         totalUnidades += stockActual;
 
         if (stockActual === 0) {
-            agotados++; // <-- Cuenta exacta si no quedan unidades (Rojo)
+            agotados++;
         } else if (stockActual <= 10) {
-            pocoStock++; // <-- Cuenta exacta de 1 a 10 unidades (Amarillo)
+            pocoStock++;
         }
     });
 
@@ -109,9 +109,10 @@ function actualizarTarjetasEstadisticas(inventarioVivo) {
     if (document.getElementById('stat-out-stock')) document.getElementById('stat-out-stock').innerText = agotados;
 }
 
-// CORRECCIÓN: Renderizado dinámico de la tabla con sincronización total en Rojo (0) y Amarillo (1-10)
+// Renderizado dinámico de la tabla con sincronización total en Rojo (0) y Amarillo (1-10)
 function renderizarTabla(listaFiltrada = inventario) {
     const tbody = document.getElementById('inventory-tbody');
+    if (!tbody) return;
     tbody.innerHTML = "";
 
     if (listaFiltrada.length === 0) {
@@ -127,12 +128,11 @@ function renderizarTabla(listaFiltrada = inventario) {
         let badgeClass = "success";
         let badgeText = "Correcto";
 
-        // Evaluación de estados visuales idéntica a las tarjetas superiores
         if (stockReal === 0) {
-            badgeClass = "danger"; // <-- Pinta en rojo usando tu clase de CSS
+            badgeClass = "danger";
             badgeText = "Agotado";
         } else if (stockReal <= 10) {
-            badgeClass = "warning"; // <-- Pinta en amarillo
+            badgeClass = "warning";
             badgeText = "Bajo Stock";
         }
 
@@ -167,9 +167,6 @@ function filtrarInventario() {
     renderizarTabla(resultado);
 }
 
-// ==========================================================================
-// 2. TRANSACTORES EN VIVO (PUT): Venta Directa y descuento de Stock
-// ==========================================================================
 window.registrarVentaDirecta = async function (id) {
     const producto = inventario.find(p => p.id === id);
     if (!producto) return;
@@ -201,9 +198,6 @@ window.registrarVentaDirecta = async function (id) {
     }
 };
 
-// ==========================================================================
-// 3. MODALES Y FORMULARIOS: Vincular datos para Create / Update
-// ==========================================================================
 window.abrirModal = function (id = null) {
     const modal = document.getElementById('product-modal');
     const form = document.getElementById('form-product');
@@ -215,11 +209,15 @@ window.abrirModal = function (id = null) {
     if (id) {
         title.innerText = "Modificar Existencias / Producto";
         const p = inventario.find(prod => prod.id === id);
-        const categoriaActual = p.categoria && p.categoria.nombre ? p.categoria.nombre.toUpperCase() : "";
+
+        let categoriaVal = "";
+        if (p.categoria) {
+            categoriaVal = p.categoria.nombre || "";
+        }
 
         document.getElementById('product-id').value = p.id;
         document.getElementById('prod-name').value = p.nombre;
-        document.getElementById('prod-category').value = categoriaActual;
+        document.getElementById('prod-category').value = categoriaVal;
         document.getElementById('prod-price').value = p.precio || 1.50;
         document.getElementById('prod-stock').value = p.cantidad || 0;
     } else {
@@ -239,28 +237,45 @@ async function guardarProducto(e) {
     e.preventDefault();
     const id = document.getElementById('product-id').value;
     const nombre = document.getElementById('prod-name').value;
-    const categoriaStr = document.getElementById('prod-category').value;
+    const categoriaSelect = document.getElementById('prod-category');
+    const categoriaVal = categoriaSelect.value;
     const precio = parseFloat(document.getElementById('prod-price').value);
     const stock = parseInt(document.getElementById('prod-stock').value);
 
+    // Formateamos la primera letra en mayúscula (ej: "Bebida")
+    const formatoCategoriaCorrecto = categoriaVal.charAt(0).toUpperCase() + categoriaVal.slice(1).toLowerCase();
+
+    // Intentamos extraer el ID numérico de la categoría de la lista si existiera
+    const subListaMapeada = categoriasRaw[formatoCategoriaCorrecto] || [];
+    let idCategoriaEncontrado = null;
+    if (subListaMapeada.length > 0 && subListaMapeada[0].categoria) {
+        idCategoriaEncontrado = subListaMapeada[0].categoria.id;
+    }
+
+    // MULTI-BLINDAJE JSON: Enviamos todas las variantes posibles de mapeo
     const payload = {
-        nombre,
-        categoria: { nombre: categoriaStr.charAt(0) + categoriaStr.slice(1).toLowerCase() },
-        precio,
-        cantidad: stock
+        nombre: nombre,
+        precio: precio,
+        cantidad: stock,
+        nombreCategoria: formatoCategoriaCorrecto, // Para el CrearProductoStockRequest plano
+        categoriaId: idCategoriaEncontrado,        // Por si pide el ID plano
+        categoria: {                               // Objeto completo por si usa Hibernate Relacional
+            id: idCategoriaEncontrado,
+            nombre: formatoCategoriaCorrecto
+        }
     };
 
     try {
         let response;
         if (id) {
-            response = await fetch(`${API_BASE_URL}/stock/productos/${id}`, {
+            response = await fetch(`${API_BASE_URL}/stock/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: parseInt(id), ...payload })
             });
             if (response.ok) showToast("Producto actualizado correctamente.");
         } else {
-            response = await fetch(`${API_BASE_URL}/stock/productos`, {
+            response = await fetch(`${API_BASE_URL}/stock`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -268,24 +283,24 @@ async function guardarProducto(e) {
             if (response.ok) showToast("Nuevo producto añadido al catálogo.");
         }
 
-        if (!response.ok) throw new Error("Fallo en la persistencia de datos.");
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || "Error de validación interna");
+        }
 
         cerrarModal();
         await cargarInventarioDesdeAPI();
 
     } catch (error) {
-        console.error(error);
-        showToast("Error al guardar los cambios en la API.");
+        console.error("🔴 Error detallado de Spring Boot:", error);
+        showToast("Error al guardar: " + error.message);
     }
 }
 
-// ==========================================================================
-// 5. OPERACIÓN DELETE (DELETE)
-// ==========================================================================
 window.eliminarProducto = async function (id) {
     if (confirm("¿Estás completamente seguro de eliminar este producto del inventario?")) {
         try {
-            const response = await fetch(`${API_BASE_URL}/stock/productos/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/stock/${id}`, {
                 method: 'DELETE'
             });
 
@@ -303,6 +318,7 @@ window.eliminarProducto = async function (id) {
 
 function showToast(mensaje) {
     const container = document.getElementById('toast-container');
+    if (!container) return;
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.innerText = mensaje;

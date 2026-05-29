@@ -324,7 +324,7 @@
 
 let mapaMesasVivas = [];
 let libroReservas = [];
-let listaTurnosVivos = []; // Buffer para guardar los turnos de la API
+let listaTurnosVivos = [];
 
 // Elementos DOM
 const tableBody = document.getElementById("reservas-table-body");
@@ -340,33 +340,27 @@ const inputId = document.getElementById("res-id");
 const inputNombre = document.getElementById("res-nombre");
 const inputTelefono = document.getElementById("res-telefono");
 const inputPax = document.getElementById("res-pax");
-const inputHora = document.getElementById("res-hora"); // Mapeado al <select> de turnos
+const inputHora = document.getElementById("res-hora");
 const inputFecha = document.getElementById("res-date");
 const inputNotas = document.getElementById("res-notas");
 const btnCancelEdit = document.getElementById("btn-cancel-edit");
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Forzamos la obtención de la fecha local
     const d = new Date();
     const hoy = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-    inputFechaFiltro.value = hoy;
-    inputFecha.value = hoy;
+    if (inputFechaFiltro) inputFechaFiltro.value = hoy;
+    if (inputFecha) inputFecha.value = hoy;
 
-    // ARRANQUE EN CADENA ASÍNCRONO: Mesas -> Turnos -> Reservas
     cargarMesasDesdeAPI();
 
-    // Listeners de los formularios y filtros
-    formReserva.addEventListener("submit", guardarReserva);
-    inputFechaFiltro.addEventListener("change", sincronizarPantallaSala);
-    inputStatusFiltro.addEventListener("change", sincronizarPantallaSala);
-    inputBuscador.addEventListener("input", sincronizarPantallaSala);
-    btnCancelEdit.addEventListener("click", abortarEdicion);
+    if (formReserva) formReserva.addEventListener("submit", guardarReserva);
+    if (inputFechaFiltro) inputFechaFiltro.addEventListener("change", sincronizarPantallaSala);
+    if (inputStatusFiltro) inputStatusFiltro.addEventListener("change", sincronizarPantallaSala);
+    if (inputBuscador) inputBuscador.addEventListener("input", sincronizarPantallaSala);
+    if (btnCancelEdit) btnCancelEdit.addEventListener("click", abortarEdicion);
 });
 
-// ==========================================================================
-// 1. CARGA EN CADENA DESDE LA API DE SPRING BOOT
-// ==========================================================================
 async function cargarMesasDesdeAPI() {
     try {
         console.log("Conectando con el endpoint de mesas en:", `${API_BASE_URL}/mesas`);
@@ -374,8 +368,6 @@ async function cargarMesasDesdeAPI() {
         if (!response.ok) throw new Error(`Error en mesas: ${response.status}`);
 
         mapaMesasVivas = await response.json();
-
-        // Siguiente eslabón: Cargamos los turnos configurados
         await cargarTurnosDesdeAPI();
     } catch (error) {
         console.error("🔴 Error al cargar mesas desde Spring Boot:", error);
@@ -385,14 +377,12 @@ async function cargarMesasDesdeAPI() {
 
 async function cargarTurnosDesdeAPI() {
     try {
-        console.log("Conectando con el endpoint de turnos en:", `${API_BASE_URL}/turnos`);
         const response = await fetch(`${API_BASE_URL}/turnos`);
         if (!response.ok) throw new Error(`Error en turnos: ${response.status}`);
 
         listaTurnosVivos = await response.json();
         poblarDesplegableTurnos();
 
-        // Siguiente eslabón: Cargamos las reservas guardadas en base de datos
         await cargarReservasDesdeAPI();
     } catch (error) {
         console.error("🔴 Error al cargar turnos desde Spring Boot:", error);
@@ -406,17 +396,12 @@ async function cargarReservasDesdeAPI() {
         if (!response.ok) throw new Error(`Error en reservas: ${response.status}`);
 
         libroReservas = await response.json();
-
-        // Sincronizamos la interfaz de usuario completa
         sincronizarPantallaSala();
     } catch (error) {
         console.error("🔴 Error al cargar reservas desde Spring Boot:", error);
     }
 }
 
-// ==========================================================================
-// 2. POBLACIÓN DE COMPONENTES DEL FORMULARIO Y TABLAS
-// ==========================================================================
 function poblarDesplegableTurnos() {
     const selectHora = document.getElementById("res-hora");
     if (!selectHora) return;
@@ -425,7 +410,7 @@ function poblarDesplegableTurnos() {
     listaTurnosVivos.forEach(t => {
         if (t.activo) {
             const opt = document.createElement("option");
-            opt.value = t.nombre; // Guarda "Comida 1", "Cena 1", etc.
+            opt.value = t.id; // Almacenamos el ID numérico puro para el Long de Java
             opt.innerText = `${t.nombre} (${t.horaInicio.substring(0, 5)} - ${t.horaFin.substring(0, 5)})`;
             selectHora.appendChild(opt);
         }
@@ -433,6 +418,7 @@ function poblarDesplegableTurnos() {
 }
 
 function poblarDesplegableMesas() {
+    if (!selectMesaForm) return;
     selectMesaForm.innerHTML = '<option value="">Selecciona mesa...</option>';
     mapaMesasVivas.forEach(m => {
         const opt = document.createElement("option");
@@ -456,17 +442,18 @@ function filtrarLibroReservas() {
     const textoBusqueda = inputBuscador.value.toLowerCase().trim();
 
     return libroReservas.filter(res => {
-        const coincideFecha = res.fecha === fechaSeleccionada;
+        const nombreClienteReal = res.nombreCliente || res.nombre || "Cliente";
+        const coincideFecha = res.fechaReserva === fechaSeleccionada || res.fecha === fechaSeleccionada;
         const coincideEstado = estadoSeleccionado === "TODOS" || res.estado === estadoSeleccionado;
-        const coincideTexto = res.nombre.toLowerCase().includes(textoBusqueda) ||
-            res.telefono.includes(textoBusqueda) ||
-            String(res.mesaId).toLowerCase().includes(textoBusqueda);
+        const coincideTexto = nombreClienteReal.toLowerCase().includes(textoBusqueda) ||
+            (res.telefono && res.telefono.includes(textoBusqueda));
 
         return coincideFecha && coincideEstado && coincideTexto;
     });
 }
 
 function renderizarTablaReservas(lista) {
+    if (!tableBody) return;
     tableBody.innerHTML = "";
     if (lista.length === 0) {
         tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:24px;">No hay registros de reservas en esta fecha.</td></tr>`;
@@ -476,21 +463,25 @@ function renderizarTablaReservas(lista) {
     lista.forEach(res => {
         let badgeText = res.estado;
         if (res.estado === "SENTADO") badgeText = "Sentado";
+        const nombreFinal = res.nombreCliente || res.nombre || "Cliente";
+        const horaFinal = res.hora || (res.turnoReserva ? res.turnoReserva.nombre : "14:00");
+        const fechaFinal = res.fechaReserva || res.fecha;
+        const numMesa = res.mesa ? res.mesa.numeroMesa : (res.mesaId || "?");
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td><strong>${res.hora}</strong></td>
-            <td style="font-weight:600; color:var(--text-dark);">${res.fecha}</td>
-            <td style="font-weight:600;">${res.nombre}</td>
-            <td><span style="font-weight:700;">${res.pax}</span></td>
-            <td><strong>Mesa ${res.mesaId}</strong></td>
-            <td style="color:var(--text-muted); font-size:13px;">${res.notas}</td>
+            <td><strong>${horaFinal}</strong></td>
+            <td style="font-weight:600; color:var(--text-dark);">${fechaFinal}</td>
+            <td style="font-weight:600;">${nombreFinal}</td>
+            <td><span class="badge" style="background:#f1f5f9; color:#1e293b; font-weight:700;">${res.pax}</span></td>
+            <td><strong>Mesa ${numMesa}</strong></td>
+            <td style="color:var(--text-muted); font-size:13px;">${res.notas || "Ninguna"}</td>
             <td><span class="badge status-${res.estado.toLowerCase()}">${badgeText}</span></td>
             <td>
                 <div class="row-actions">
-                    <button class="action-btn-pill btn-attendance" onclick="cambiarEstadoReserva('${res.id}', 'SENTADO')" title="Marcar Comensales como Sentados">Sentar</button>
+                    <button class="action-btn-pill btn-attendance" onclick="cambiarEstadoReserva('${res.id}', 'SENTADO')" title="Marcar como Sentados">Sentar</button>
                     <button class="action-btn-pill btn-edit" onclick="cargarReservaParaEditar('${res.id}')">Editar</button>
-                    <button class="action-btn-pill" style="background-color:#e2e8f0;" onclick="cambiarEstadoReserva('${res.id}', 'FINALIZADA')">Finalizar</button>
+                    <button class="action-btn-pill" style="background-color:#e2e8f0; color:#1e293b;" onclick="cambiarEstadoReserva('${res.id}', 'FINALIZADA')">Finalizar</button>
                     <button class="action-btn-pill btn-delete" onclick="cancelarReserva('${res.id}')">X</button>
                 </div>
             </td>
@@ -504,7 +495,7 @@ function dibujarMapaMesasInteractivas(reservasDelDia) {
     dynamicZonesContainer.innerHTML = "";
 
     if (mapaMesasVivas.length === 0) {
-        dynamicZonesContainer.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:16px;">No hay infraestructura de mesas en la base de datos de Spring Boot.</p>`;
+        dynamicZonesContainer.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:16px;">No hay infraestructura de mesas en la base de datos.</p>`;
         return;
     }
 
@@ -518,7 +509,10 @@ function dibujarMapaMesasInteractivas(reservasDelDia) {
     gridDiv.className = "grid-tables-map";
 
     mapaMesasVivas.forEach(m => {
-        const reservaAsociada = reservasDelDia.find(r => parseInt(r.mesaId) === parseInt(m.id) && r.estado !== "CANCELADA" && r.estado !== "FINALIZADA");
+        const reservaAsociada = reservasDelDia.find(r => {
+            const mId = r.mesa ? r.mesa.id : (r.mesaId || -1);
+            return parseInt(mId) === parseInt(m.id) && r.estado !== "CANCELADA" && r.estado !== "FINALIZADA";
+        });
 
         let claseEstado = "state-free";
         if (reservaAsociada) {
@@ -535,9 +529,9 @@ function dibujarMapaMesasInteractivas(reservasDelDia) {
         tableNode.onclick = () => {
             if (claseEstado === "state-free") {
                 selectMesaForm.value = m.id;
-                showToast(`Mesa ${m.numeroMesa} seleccionada en el formulario.`);
+                showToast(`Mesa ${m.numeroMesa} seleccionada.`);
             } else {
-                showToast(`Mesa ${m.numeroMesa} ocupada por la reserva de "${reservaAsociada.nombre}".`);
+                showToast(`Mesa ${m.numeroMesa} ocupada por "${reservaAsociada.nombreCliente || reservaAsociada.nombre}".`);
             }
         };
 
@@ -548,8 +542,9 @@ function dibujarMapaMesasInteractivas(reservasDelDia) {
 }
 
 function calcularMetricasKpi() {
+    if (!document.getElementById("stat-total-res")) return;
     const hoy = inputFechaFiltro.value;
-    const delDia = libroReservas.filter(r => r.fecha === hoy);
+    const delDia = libroReservas.filter(r => r.fechaReserva === hoy || r.fecha === hoy);
 
     const total = delDia.length;
     const pendientes = delDia.filter(r => r.estado === "PENDIENTE").length;
@@ -566,19 +561,27 @@ function calcularMetricasKpi() {
 }
 
 // ==========================================================================
-// 3. OPERACIONES MUTABLES CONTRA LA API (CREATE / UPDATE / DELETE)
+// 3. OPERACIÓN CREATE / UPDATE (POST)
 // ==========================================================================
 async function guardarReserva(e) {
     e.preventDefault();
     const id = inputId.value;
+    const clientName = inputNombre.value.trim();
+    const idTurno = parseInt(inputHora.value);
+    const idMesa = parseInt(selectMesaForm.value);
+    const cantidadPax = parseInt(inputPax.value);
 
+    // BLINDADO: Duplicamos las claves de mapeo tanto de tipo primitivo como objeto clase entidad
     const datos = {
-        nombre: inputNombre.value.trim(),
+        nombre: clientName,
+        nombreCliente: clientName,
         telefono: inputTelefono.value.trim(),
-        pax: parseInt(inputPax.value),
-        hora: inputHora.value, // Envía el string del turno seleccionado ("Comida 1")
+        pax: cantidadPax,
+        numeroPersonas: cantidadPax, // Para evitar errores de validación de comensales mayor que cero
+        turnoId: idTurno,
         fecha: inputFecha.value,
-        mesaId: selectMesaForm.value,
+        fechaReserva: inputFecha.value,
+        mesaId: idMesa,
         notas: inputNotas.value.trim() || "Ninguna",
         responsable: "Julio Admin",
         estado: "PENDIENTE"
@@ -587,7 +590,6 @@ async function guardarReserva(e) {
     try {
         let response;
         if (id) {
-            // PUT a /api/reservas/${id}
             response = await fetch(`${API_BASE_URL}/reservas/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -596,26 +598,26 @@ async function guardarReserva(e) {
             if (response.ok) showToast("Ficha de reserva modificada.");
             abortarEdicion();
         } else {
-            // POST a /api/reservas
             response = await fetch(`${API_BASE_URL}/reservas`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datos)
             });
-            if (response.ok) showToast(`Reserva para ${datos.nombre} registrada en Spring Boot.`);
+            if (response.ok) showToast(`Reserva para ${datos.nombreCliente} registrada.`);
         }
 
-        if (!response.ok) throw new Error(`Fallo en persistencia: ${response.status}`);
+        if (!response.ok) {
+            const serverError = await response.text();
+            throw new Error(serverError || "Error de validación en Java");
+        }
 
         formReserva.reset();
         inputFecha.value = inputFechaFiltro.value;
-
-        // Recargamos el ciclo completo desde el backend para actualizar la vista
         await cargarMesasDesdeAPI();
 
     } catch (error) {
-        console.error("🔴 Error al guardar la reserva:", error);
-        showToast("Error de conexión al guardar el registro.");
+        console.error("🔴 Error en ReservaService de Java:", error);
+        showToast("No se guardó: " + error.message);
     }
 }
 
@@ -625,64 +627,60 @@ window.cargarReservaParaEditar = function (id) {
 
     document.getElementById("form-action-title").innerText = "✏️ Editar Reserva Seleccionada";
     document.getElementById("btn-submit-text").innerText = "Actualizar Registro";
-    btnCancelEdit.style.display = "block";
+    if (btnCancelEdit) btnCancelEdit.style.display = "block";
+
+    const idTurnoReal = r.turnoId || (r.turnoReserva ? r.turnoReserva.id : "");
 
     inputId.value = r.id;
-    inputNombre.value = r.nombre;
-    inputTelefono.value = r.telefono;
-    inputPax.value = r.pax;
-    inputHora.value = r.hora;
-    inputFecha.value = r.fecha;
-    selectMesaForm.value = r.mesaId;
+    inputNombre.value = r.nombreCliente || r.nombre || "";
+    inputTelefono.value = r.telefono || "";
+    inputPax.value = r.pax || r.numeroPersonas || 1;
+    inputHora.value = idTurnoReal;
+    inputFecha.value = r.fechaReserva || r.fecha;
+    selectMesaForm.value = r.mesa ? r.mesa.id : (r.mesaId || "");
     inputNotas.value = r.notas === "Ninguna" ? "" : r.notas;
 };
 
 function abortarEdicion() {
     document.getElementById("form-action-title").innerText = "☎️ Tomar Nueva Reserva";
     document.getElementById("btn-submit-text").innerText = "Guardar Reserva";
-    btnCancelEdit.style.display = "none";
+    if (btnCancelEdit) btnCancelEdit.style.display = "none";
     inputId.value = "";
-    formReserva.reset();
+    if (formReserva) formReserva.reset();
     inputFecha.value = inputFechaFiltro.value;
 }
 
 window.cambiarEstadoReserva = async function (id, nuevoEstado) {
-    const res = libroReservas.find(r => r.id == id);
-    if (res) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/reservas/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...res, estado: nuevoEstado })
-            });
+    try {
+        const response = await fetch(`${API_BASE_URL}/reservas/${id}/estado`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ estado: nuevoEstado.toUpperCase() })
+        });
 
-            if (!response.ok) throw new Error();
-            showToast(`Estado cambiado a ${nuevoEstado.toLowerCase()}.`);
-            await cargarMesasDesdeAPI();
-        } catch (error) {
-            console.error("🔴 Error al cambiar estado:", error);
-        }
+        if (!response.ok) throw new Error();
+        showToast(`Estado cambiado a ${nuevoEstado.toLowerCase()}.`);
+        await cargarMesasDesdeAPI();
+    } catch (error) {
+        console.error("🔴 Error al cambiar estado:", error);
+        showToast("No se pudo actualizar el estado.");
     }
 };
 
 window.cancelarReserva = async function (id) {
-    if (confirm("¿Estás seguro de que deseas cancelar de forma permanente esta reserva?")) {
-        const res = libroReservas.find(r => r.id == id);
-        if (res) {
-            try {
-                // Si tu amigo prefiere un borrado físico, cambia el método a 'DELETE' a /api/reservas/${id}
-                const response = await fetch(`${API_BASE_URL}/reservas/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...res, estado: "CANCELADA" })
-                });
+    if (confirm("¿Estás seguro de que deseas cancelar esta reserva?")) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/reservas/${id}/estado`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: "CANCELADA" })
+            });
 
-                if (!response.ok) throw new Error();
-                showToast("Reserva cancelada.");
-                await cargarMesasDesdeAPI();
-            } catch (error) {
-                console.error("🔴 Error al cancelar reserva:", error);
-            }
+            if (!response.ok) throw new Error();
+            showToast("Reserva cancelada.");
+            await cargarMesasDesdeAPI();
+        } catch (error) {
+            console.error("🔴 Error al cancelar reserva:", error);
         }
     }
 };
