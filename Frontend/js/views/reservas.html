@@ -92,8 +92,10 @@
                                     <input type="number" id="res-pax" min="1" max="20" placeholder="4" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="res-hora">Hora del servicio</label>
-                                    <input type="time" id="res-hora" required>
+                                    <label for="res-hora">Turno del servicio</label>
+                                    <select id="res-hora" required>
+                                        <option value="">Selecciona turno...</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-grid-2col">
@@ -105,7 +107,7 @@
                                     <label for="res-mesa">Mesa / ID asignado</label>
                                     <select id="res-mesa" required>
                                         <option value="">Selecciona mesa...</option>
-                                        </select>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -140,18 +142,18 @@
                 <div class="chart-container large bookings-table-container">
                     <div class="chart-header bookings-chart-header">
                         <h3 class="title-bold">Libro de Registro General</h3>
-                            <div class="filters-group">
-                                <input type="date" id="filter-date" class="select-filter" title="Filtrar por fecha">
-                                
-                                <select id="filter-status" class="select-filter">
-                                    <option value="TODOS">Todos los Estados</option>
-                                    <option value="PENDIENTE">Pendiente</option>
-                                    <option value="CONFIRMADA">Confirmada</option>
-                                    <option value="SENTADO">Cliente Sentado</option>
-                                    <option value="FINALIZADA">Finalizada</option>
-                                    <option value="CANCELADA">Cancelada</option>
-                                </select>
-                            </div>
+                        <div class="filters-group">
+                            <input type="date" id="filter-date" class="select-filter" title="Filtrar por fecha">
+                            
+                            <select id="filter-status" class="select-filter">
+                                <option value="TODOS">Todos los Estados</option>
+                                <option value="PENDIENTE">Pendiente</option>
+                                <option value="CONFIRMADA">Confirmada</option>
+                                <option value="SENTADO">Cliente Sentado</option>
+                                <option value="FINALIZADA">Finalizada</option>
+                                <option value="CANCELADA">Cancelada</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="table-responsive-wrapper">
@@ -168,8 +170,7 @@
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="reservas-table-body">
-                                </tbody>
+                            <tbody id="reservas-table-body"></tbody>
                         </table>
                     </div>
                 </div>
@@ -181,6 +182,7 @@
 
     <script src="../auth.js"></script>
     <script src="../main.js"></script>
+    <script src="../config.js"></script>
     <script src="../modules/reservas.js"></script>
 </body>
 </html>

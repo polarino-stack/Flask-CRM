@@ -1,37 +1,15 @@
-const productosIniciales = [
-    { id: 1, nombre: "Coca Cola", categoria: "BEBIDAS", precio: 1.50, stock: 48 },
-    { id: 2, nombre: "Fanta Naranja", categoria: "BEBIDAS", precio: 1.50, stock: 36 },
-    { id: 3, nombre: "Fanta Limón", categoria: "BEBIDAS", precio: 1.50, stock: 34 },
-    { id: 4, nombre: "Agua", categoria: "BEBIDAS", precio: 1.00, stock: 72 },
-    { id: 5, nombre: "Nestea", categoria: "BEBIDAS", precio: 1.60, stock: 30 },
-    { id: 6, nombre: "Nestea Maracuyá", categoria: "BEBIDAS", precio: 1.60, stock: 24 },
-    { id: 7, nombre: "Tónica", categoria: "BEBIDAS", precio: 1.40, stock: 20 },
-    { id: 8, nombre: "Ballantines", categoria: "BEBIDAS ALCOHÓLICAS", precio: 4.50, stock: 8 },
-    { id: 9, nombre: "Red Label", categoria: "BEBIDAS ALCOHÓLICAS", precio: 4.50, stock: 7 },
-    { id: 10, nombre: "Sigrams", categoria: "BEBIDAS ALCOHÓLICAS", precio: 5.00, stock: 6 },
-    { id: 11, nombre: "Puerto de Indias", categoria: "BEBIDAS ALCOHÓLICAS", precio: 5.50, stock: 9 },
-    { id: 12, nombre: "Barceló", categoria: "BEBIDAS ALCOHÓLICAS", precio: 4.80, stock: 5 },
-    { id: 13, nombre: "Brugal", categoria: "BEBIDAS ALCOHÓLICAS", precio: 4.80, stock: 6 },
-    { id: 14, nombre: "Queso", categoria: "EMBUTIDOS", precio: 2.20, stock: 12 },
-    { id: 15, nombre: "Jamón Serrano", categoria: "EMBUTIDOS", precio: 3.00, stock: 10 },
-    { id: 16, nombre: "Jamón Dulce", categoria: "EMBUTIDOS", precio: 1.80, stock: 9 },
-    { id: 17, nombre: "Fuet", categoria: "EMBUTIDOS", precio: 2.00, stock: 14 },
-    { id: 18, nombre: "Chorizo", categoria: "EMBUTIDOS", precio: 1.95, stock: 11 },
-    { id: 19, nombre: "Sal", categoria: "CONDIMENTOS", precio: 0.30, stock: 20 },
-    { id: 20, nombre: "Pimienta", categoria: "CONDIMENTOS", precio: 0.50, stock: 18 },
-    { id: 21, nombre: "Tomillo", categoria: "CONDIMENTOS", precio: 0.45, stock: 15 },
-    { id: 22, nombre: "Ajo en Polvo", categoria: "CONDIMENTOS", precio: 0.60, stock: 16 },
-    { id: 23, nombre: "Pimiento", categoria: "CONDIMENTOS", precio: 0.55, stock: 13 },
-    { id: 24, nombre: "Tomate", categoria: "FRUTAS Y VEGETALES", precio: 0.80, stock: 40 },
-    { id: 25, nombre: "Patata", categoria: "FRUTAS Y VEGETALES", precio: 0.50, stock: 55 }
-];
+/**
+ * ==========================================================================
+ * CRM RESTAURANTE: CAPA DE CONEXIÓN CON SPRING BOOT (MÓDULO PRODUCTOS)
+ * ==========================================================================
+ */
 
-let inventario = JSON.parse(localStorage.getItem("crm_inventario")) || productosIniciales;
+let inventario = [];
+let categoriasRaw = {};
 
 document.addEventListener("DOMContentLoaded", () => {
-    guardarEnLocalStorage();
-    renderizarTabla();
-    actualizarTarjetasEstadisticas();
+    // Inicialización del catálogo asíncrono
+    cargarInventarioDesdeAPI();
 
     document.getElementById('btn-open-modal').addEventListener('click', () => abrirModal());
     document.getElementById('btn-close-modal').addEventListener('click', cerrarModal);
@@ -41,45 +19,100 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('category-filter').addEventListener('change', filtrarInventario);
 });
 
-function guardarEnLocalStorage() {
-    localStorage.setItem("crm_inventario", JSON.stringify(inventario));
+// ==========================================================================
+// 1. OPERACIÓN READ (GET): Traer productos y categorías en vivo
+// ==========================================================================
+async function cargarInventarioDesdeAPI() {
+    try {
+        console.log("Conectando con el endpoint de productos en:", `${API_BASE_URL}/stock`);
+        const response = await fetch(`${API_BASE_URL}/stock`);
+
+        if (!response.ok) throw new Error(`Fallo en servidor Java: ${response.status}`);
+        inventario = await response.json();
+
+        // Llamamos a la API de categorías para renderizar los selectores dinámicos
+        await cargarCategoriasDesdeAPI();
+
+        // Sincronizamos la interfaz de usuario con los datos reales
+        renderizarTabla(inventario);
+        actualizarTarjetasEstadisticas(inventario);
+
+    } catch (error) {
+        console.error("🔴 Error al conectar con Spring Boot:", error);
+        showToast("Error de conexión con la base de datos.");
+    }
 }
 
-function actualizarTarjetasEstadisticas() {
-    // 1. REFRESH: Forzamos a la función a leer los datos más nuevos del almacén
-    const inventarioVivo = JSON.parse(localStorage.getItem("crm_inventario")) || [];
+async function cargarCategoriasDesdeAPI() {
+    try {
+        console.log("Conectando con el endpoint de categorías en:", `${API_BASE_URL}/stock/categorias`);
+        const response = await fetch(`${API_BASE_URL}/stock/categorias`);
 
+        if (!response.ok) throw new Error();
+        categoriasRaw = await response.json();
+
+        // Poblamos los dropdowns automáticamente
+        poblarFiltrosDeCategorias();
+    } catch (error) {
+        console.error("🔴 Error al recuperar las categorías de la API:", error);
+    }
+}
+
+function poblarFiltrosDeCategorias() {
+    const filterSelect = document.getElementById("category-filter");
+    const modalSelect = document.getElementById("prod-category");
+    const listaCategorias = Object.keys(categoriasRaw);
+
+    // 1. Poblamos el filtro del catálogo general
+    if (filterSelect) {
+        filterSelect.innerHTML = '<option value="TODOS">Todas las Categorías</option>';
+        listaCategorias.forEach(cat => {
+            const opt = document.createElement("option");
+            opt.value = cat.toUpperCase();
+            opt.innerText = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
+            filterSelect.appendChild(opt);
+        });
+    }
+
+    // 2. Poblamos el desplegable del formulario de agregar productos
+    if (modalSelect) {
+        modalSelect.innerHTML = '<option value="">Selecciona categoría...</option>';
+        listaCategorias.forEach(cat => {
+            const opt = document.createElement("option");
+            // Guardamos el string plano como value
+            opt.value = cat;
+            opt.innerText = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
+            modalSelect.appendChild(opt);
+        });
+    }
+}
+
+// Control de los tres estados de stock para los KPIs superiores
+function actualizarTarjetasEstadisticas(inventarioVivo) {
     let totalUnidades = 0;
     let pocoStock = 0;
     let agotados = 0;
 
-    // 2. Recorremos el buffer vivo del LocalStorage
     inventarioVivo.forEach(p => {
-        const stockActual = parseInt(p.stock) || 0;
-
+        const stockActual = parseInt(p.cantidad) || 0;
         totalUnidades += stockActual;
 
         if (stockActual === 0) {
             agotados++;
         } else if (stockActual <= 10) {
-            pocoStock++; // Cuenta +1 por cada producto diferente que esté entre 1 y 10 unidades
+            pocoStock++;
         }
     });
 
-    // 3. Inyectamos los contadores puros en los ganchos del DOM
-    if (document.getElementById('stat-total-stock')) {
-        document.getElementById('stat-total-stock').innerText = totalUnidades;
-    }
-    if (document.getElementById('stat-low-stock')) {
-        document.getElementById('stat-low-stock').innerText = pocoStock;
-    }
-    if (document.getElementById('stat-out-stock')) {
-        document.getElementById('stat-out-stock').innerText = agotados;
-    }
+    if (document.getElementById('stat-total-stock')) document.getElementById('stat-total-stock').innerText = totalUnidades;
+    if (document.getElementById('stat-low-stock')) document.getElementById('stat-low-stock').innerText = pocoStock;
+    if (document.getElementById('stat-out-stock')) document.getElementById('stat-out-stock').innerText = agotados;
 }
 
+// Renderizado dinámico de la tabla con sincronización total en Rojo (0) y Amarillo (1-10)
 function renderizarTabla(listaFiltrada = inventario) {
     const tbody = document.getElementById('inventory-tbody');
+    if (!tbody) return;
     tbody.innerHTML = "";
 
     if (listaFiltrada.length === 0) {
@@ -88,13 +121,17 @@ function renderizarTabla(listaFiltrada = inventario) {
     }
 
     listaFiltrada.forEach(p => {
+        const stockReal = parseInt(p.cantidad) || 0;
+        const categoriaReal = p.categoria && p.categoria.nombre ? p.categoria.nombre.toUpperCase() : "SIN CATEGORÍA";
+        const precioReal = p.precio ? parseFloat(p.precio) : 1.50;
+
         let badgeClass = "success";
         let badgeText = "Correcto";
 
-        if (p.stock === 0) {
+        if (stockReal === 0) {
             badgeClass = "danger";
             badgeText = "Agotado";
-        } else if (p.stock <= 10) {
+        } else if (stockReal <= 10) {
             badgeClass = "warning";
             badgeText = "Bajo Stock";
         }
@@ -102,12 +139,12 @@ function renderizarTabla(listaFiltrada = inventario) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td style="font-weight:600;">${p.nombre}</td>
-            <td style="color:var(--text-muted); font-size:13px;">${p.categoria}</td>
-            <td>${p.precio.toFixed(2)} €</td>
-            <td style="font-weight:700;">${p.stock}</td>
+            <td style="color:var(--text-muted); font-size:13px;">${categoriaReal}</td>
+            <td>${precioReal.toFixed(2)} €</td>
+            <td style="font-weight:700;">${stockReal}</td>
             <td><span class="badge ${badgeClass}">${badgeText}</span></td>
             <td>
-                <button class="action-btn sell" onclick="registrarVentaDirecta(${p.id})">Vender 1</button>
+                <button class="action-btn sell" onclick="registrarVentaDirecta(${p.id})" ${stockReal === 0 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>Vender 1</button>
                 <button class="action-btn edit" onclick="abrirModal(${p.id})">Editar</button>
                 <button class="action-btn delete" onclick="eliminarProducto(${p.id})">Eliminar</button>
             </td>
@@ -118,46 +155,44 @@ function renderizarTabla(listaFiltrada = inventario) {
 
 function filtrarInventario() {
     const busqueda = document.getElementById('product-search').value.toLowerCase();
-    const categoria = document.getElementById('category-filter').value;
+    const categoriaFiltro = document.getElementById('category-filter').value;
 
     const resultado = inventario.filter(p => {
-        const coincideNombre = p.nombre.toLowerCase().includes(busqueda) || p.categoria.toLowerCase().includes(busqueda);
-        const coincideCategoria = (categoria === "TODOS" || p.categoria === categoria);
+        const categoriaProducto = p.categoria && p.categoria.nombre ? p.categoria.nombre.toUpperCase() : "";
+        const coincideNombre = p.nombre.toLowerCase().includes(busqueda) || categoriaProducto.toLowerCase().includes(busqueda);
+        const coincideCategoria = (categoriaFiltro === "TODOS" || categoriaProducto === categoriaFiltro);
         return coincideNombre && coincideCategoria;
     });
 
     renderizarTabla(resultado);
 }
 
-window.registrarVentaDirecta = function (id) {
+window.registrarVentaDirecta = async function (id) {
     const producto = inventario.find(p => p.id === id);
     if (!producto) return;
 
-    if (producto.stock > 0) {
-        producto.stock--;
+    const stockReal = parseInt(producto.cantidad) || 0;
 
-        let ventasTotales = parseFloat(localStorage.getItem("crm_ventas_acumuladas")) || 1240.50;
-        ventasTotales += producto.precio;
-        localStorage.setItem("crm_ventas_acumuladas", ventasTotales.toFixed(2));
+    if (stockReal > 0) {
+        try {
+            const nuevoStock = stockReal - 1;
+            const response = await fetch(`${API_BASE_URL}/stock/productos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...producto,
+                    cantidad: nuevoStock
+                })
+            });
 
-        // ==========================================================================
-        // GUARDAR LA VENTA DIRECTA POR CATEGORÍA
-        // ==========================================================================
-        let historialCategorias = JSON.parse(localStorage.getItem("crm_ventas_categorias")) || {
-            'BEBIDAS': 0, 'BEBIDAS ALCOHÓLICAS': 0, 'EMBUTIDOS': 0, 'CONDIMENTOS': 0, 'FRUTAS Y VEGETALES': 0
-        };
+            if (!response.ok) throw new Error();
+            showToast(`Venta registrada: 1 unidad de ${producto.nombre} descontada.`);
+            await cargarInventarioDesdeAPI();
 
-        // Sumamos una unidad a la categoría de este producto de forma estricta
-        const catUpper = producto.categoria.toUpperCase();
-        if (historialCategorias[catUpper] !== undefined) {
-            historialCategorias[catUpper]++;
-            localStorage.setItem("crm_ventas_categorias", JSON.stringify(historialCategorias));
+        } catch (error) {
+            console.error(error);
+            showToast("Fallo al registrar la transacción.");
         }
-
-        guardarEnLocalStorage();
-        renderizarTabla();
-        actualizarTarjetasEstadisticas();
-        showToast(`Venta registrada: 1 unidad de ${producto.nombre} descontada.`);
     } else {
         showToast(`Error: ${producto.nombre} está totalmente agotado.`);
     }
@@ -174,11 +209,17 @@ window.abrirModal = function (id = null) {
     if (id) {
         title.innerText = "Modificar Existencias / Producto";
         const p = inventario.find(prod => prod.id === id);
+
+        let categoriaVal = "";
+        if (p.categoria) {
+            categoriaVal = p.categoria.nombre || "";
+        }
+
         document.getElementById('product-id').value = p.id;
         document.getElementById('prod-name').value = p.nombre;
-        document.getElementById('prod-category').value = p.categoria;
-        document.getElementById('prod-price').value = p.precio;
-        document.getElementById('prod-stock').value = p.stock;
+        document.getElementById('prod-category').value = categoriaVal;
+        document.getElementById('prod-price').value = p.precio || 1.50;
+        document.getElementById('prod-stock').value = p.cantidad || 0;
     } else {
         title.innerText = "Agregar Nuevo Producto";
         document.getElementById('product-id').value = "";
@@ -189,42 +230,95 @@ window.cerrarModal = function () {
     document.getElementById('product-modal').classList.remove('open');
 };
 
-function guardarProducto(e) {
+// ==========================================================================
+// 4. OPERACIONES CREATE / UPDATE (POST & PUT)
+// ==========================================================================
+async function guardarProducto(e) {
     e.preventDefault();
     const id = document.getElementById('product-id').value;
     const nombre = document.getElementById('prod-name').value;
-    const categoria = document.getElementById('prod-category').value;
+    const categoriaSelect = document.getElementById('prod-category');
+    const categoriaVal = categoriaSelect.value;
     const precio = parseFloat(document.getElementById('prod-price').value);
     const stock = parseInt(document.getElementById('prod-stock').value);
 
-    if (id) {
-        const index = inventario.findIndex(p => p.id === parseInt(id));
-        inventario[index] = { id: parseInt(id), nombre, categoria, precio, stock };
-        showToast("Producto actualizado correctamente.");
-    } else {
-        const nuevoId = inventario.length > 0 ? Math.max(...inventario.map(p => p.id)) + 1 : 1;
-        inventario.push({ id: nuevoId, nombre, categoria, precio, stock });
-        showToast("Nuevo producto añadido al catálogo.");
+    // Formateamos la primera letra en mayúscula (ej: "Bebida")
+    const formatoCategoriaCorrecto = categoriaVal.charAt(0).toUpperCase() + categoriaVal.slice(1).toLowerCase();
+
+    // Intentamos extraer el ID numérico de la categoría de la lista si existiera
+    const subListaMapeada = categoriasRaw[formatoCategoriaCorrecto] || [];
+    let idCategoriaEncontrado = null;
+    if (subListaMapeada.length > 0 && subListaMapeada[0].categoria) {
+        idCategoriaEncontrado = subListaMapeada[0].categoria.id;
     }
 
-    guardarEnLocalStorage();
-    cerrarModal();
-    filtrarInventario();
-    actualizarTarjetasEstadisticas();
+    // MULTI-BLINDAJE JSON: Enviamos todas las variantes posibles de mapeo
+    const payload = {
+        nombre: nombre,
+        precio: precio,
+        cantidad: stock,
+        nombreCategoria: formatoCategoriaCorrecto, // Para el CrearProductoStockRequest plano
+        categoriaId: idCategoriaEncontrado,        // Por si pide el ID plano
+        categoria: {                               // Objeto completo por si usa Hibernate Relacional
+            id: idCategoriaEncontrado,
+            nombre: formatoCategoriaCorrecto
+        }
+    };
+
+    try {
+        let response;
+        if (id) {
+            response = await fetch(`${API_BASE_URL}/stock/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: parseInt(id), ...payload })
+            });
+            if (response.ok) showToast("Producto actualizado correctamente.");
+        } else {
+            response = await fetch(`${API_BASE_URL}/stock`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) showToast("Nuevo producto añadido al catálogo.");
+        }
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || "Error de validación interna");
+        }
+
+        cerrarModal();
+        await cargarInventarioDesdeAPI();
+
+    } catch (error) {
+        console.error("🔴 Error detallado de Spring Boot:", error);
+        showToast("Error al guardar: " + error.message);
+    }
 }
 
-window.eliminarProducto = function (id) {
+window.eliminarProducto = async function (id) {
     if (confirm("¿Estás completamente seguro de eliminar este producto del inventario?")) {
-        inventario = inventario.filter(p => p.id !== id);
-        guardarEnLocalStorage();
-        filtrarInventario();
-        actualizarTarjetasEstadisticas();
-        showToast("Producto eliminado de la base de datos.");
+        try {
+            const response = await fetch(`${API_BASE_URL}/stock/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) throw new Error("No se pudo eliminar de la base de datos.");
+
+            showToast("Producto eliminado de la base de datos.");
+            await cargarInventarioDesdeAPI();
+
+        } catch (error) {
+            console.error(error);
+            showToast("Error al procesar la baja del producto.");
+        }
     }
 };
 
 function showToast(mensaje) {
     const container = document.getElementById('toast-container');
+    if (!container) return;
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.innerText = mensaje;
