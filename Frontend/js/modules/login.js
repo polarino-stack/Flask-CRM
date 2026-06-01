@@ -1,9 +1,3 @@
-// 1. Dejamos el import comentado para que no congele el HTML clásico
-//import { API_BASE_URL } from '../config.js';
-
-// CAMBIO AQUI: Usamos solo /api para que Nginx haga el puente hacia Java
-const API_BASE_URL = "/api"; 
-
 /**
  * ==========================================================================
  * CRM RESTAURANTE: MOTOR DE AUTENTICACIÓN SAAS Y CONTROL DE ACCESO (FRONTEND)
@@ -15,8 +9,6 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
     const userInput = document.getElementById('username').value.trim();
     const passInput = document.getElementById('password').value;
     const errorMsg = document.getElementById('error-message');
-
-    console.log("Intentando conectar con la API en la dirección:", API_BASE_URL);
 
     // 1. Obtener clave del Administrador del LocalStorage
     const adminPasswordConfig = localStorage.getItem("crm_admin_password") || "admin1234";
@@ -74,7 +66,7 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
         window.location.href = "js/views/dashboard.html"; 
     } else {
         // ==========================================================================
-        // LO NUEVO: SI NO ES UN USUARIO DE PRUEBA, CONSULTAMOS A LA API DE JAVA
+        // LO NUEVO: CONSULTAMOS A LA API USANDO LA URL CENTRALIZADA DE CONFIG.JS
         // ==========================================================================
         fetch(`${API_BASE_URL}/login`, {
             method: 'POST',
@@ -83,7 +75,6 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
         })
         .then(response => {
             if (!response.ok) {
-                // Si Java dice que no existe el usuario
                 throw new Error("Credenciales inválidas en la base de datos");
             }
             return response.json();
@@ -92,7 +83,6 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
             // === ENTRÓ POR LA BASE DE DATOS DE JAVA ===
             if (errorMsg) errorMsg.style.display = "none";
             
-            // Guardamos los datos que devuelve tu Java
             localStorage.setItem("jwt_token", data.token || "token_real");
             localStorage.setItem("crm_logged_user_name", data.nombre || userInput);
             localStorage.setItem("crm_logged_user_role", data.rol || "USUARIO");
