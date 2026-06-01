@@ -1,7 +1,8 @@
 // 1. Dejamos el import comentado para que no congele el HTML clásico
 //import { API_BASE_URL } from '../config.js';
 
-const API_BASE_URL = "http://172.17.30.202:8082/api";
+// CAMBIO AQUI: Usamos solo /api para que Nginx haga el puente hacia Java
+const API_BASE_URL = "/api"; 
 
 /**
  * ==========================================================================
@@ -20,7 +21,7 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
     // 1. Obtener clave del Administrador del LocalStorage
     const adminPasswordConfig = localStorage.getItem("crm_admin_password") || "admin1234";
 
-    // 2. SEMILLERO DE SEGURIDAD
+    // 2. SEMILLERO DE SEGURIDAD (Datos de prueba)
     let listaEmpleados = JSON.parse(localStorage.getItem("crm_employees"));
 
     if (!listaEmpleados || listaEmpleados.length === 0) {
@@ -36,16 +37,16 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
     let nombreCompleto = "";
 
     // ==========================================================================
-    // CAMBIO 1: Forzamos la contraseña 'admin1234' en texto plano (Evita basura en LocalStorage)
+    // MODO PRUEBAS: Forzamos la contraseña 'admin1234'
     // ==========================================================================
     if (userInput.toLowerCase() === "julio admin" || userInput.toLowerCase() === "admin") {
-        if (passInput === "admin1234") { // <-- MODIFICADO: Cambiado adminPasswordConfig por "admin1234"
+        if (passInput === "admin1234") { 
             accesoConcedido = true;
             rolUsuario = "Admin";
             nombreCompleto = "Julio Administrador";
         }
     }
-    // CASO B: ¿Intenta entrar uno de los empleados?
+    // CASO B: ¿Intenta entrar uno de los empleados de prueba?
     else {
         const empleadoEncontrado = listaEmpleados.find(emp => emp.username === userInput);
         const contrasenaCorrecta = empleadoEncontrado && (empleadoEncontrado.password === passInput || passInput === "1234");
@@ -63,17 +64,47 @@ document.getElementById('form-login').addEventListener('submit', function (e) {
 
     // CONTROL DE ACCESO FINAL
     if (accesoConcedido) {
+        // === ENTRÓ POR EL MODO DE PRUEBAS LOCAL ===
         if (errorMsg) errorMsg.style.display = "none";
 
         localStorage.setItem("jwt_token", "token_simulado_" + Date.now());
         localStorage.setItem("crm_logged_user_name", nombreCompleto);
         localStorage.setItem("crm_logged_user_role", rolUsuario);
 
-        // ==========================================================================
-        // CAMBIO 2: Ajustamos la ruta para que coincida con tu árbol real de carpetas
-        // ==========================================================================
-        window.location.href = "js/views/dashboard.html"; // <-- MODIFICADO: Añadido "js/" al inicio
+        window.location.href = "js/views/dashboard.html"; 
     } else {
-        if (errorMsg) errorMsg.style.display = "flex";
+        // ==========================================================================
+        // LO NUEVO: SI NO ES UN USUARIO DE PRUEBA, CONSULTAMOS A LA API DE JAVA
+        // ==========================================================================
+        fetch(`${API_BASE_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: userInput, password: passInput })
+        })
+        .then(response => {
+            if (!response.ok) {
+                // Si Java dice que no existe el usuario
+                throw new Error("Credenciales inválidas en la base de datos");
+            }
+            return response.json();
+        })
+        .then(data => {
+            // === ENTRÓ POR LA BASE DE DATOS DE JAVA ===
+            if (errorMsg) errorMsg.style.display = "none";
+            
+            // Guardamos los datos que devuelve tu Java
+            localStorage.setItem("jwt_token", data.token || "token_real");
+            localStorage.setItem("crm_logged_user_name", data.nombre || userInput);
+            localStorage.setItem("crm_logged_user_role", data.rol || "USUARIO");
+            
+            window.location.href = "js/views/dashboard.html";
+        })
+        .catch(error => {
+            console.error("Fallo general de acceso:", error);
+            if (errorMsg) {
+                errorMsg.innerText = "Usuario o contraseña incorrectos";
+                errorMsg.style.display = "flex";
+            }
+        });
     }
 });
