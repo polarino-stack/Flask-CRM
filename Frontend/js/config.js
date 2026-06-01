@@ -1,6 +1,4 @@
-const API_BASE_URL = window.location.hostname === "localhost" 
-    ? "http://localhost:8082/api" 
-    : `http://${window.location.hostname}:8082/api`;
+const API_BASE_URL = "/api";
 
 async function apiRequest(endpoint, options = {}) {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
